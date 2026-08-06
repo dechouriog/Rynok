@@ -1,399 +1,240 @@
-# Statement Of Work
+# Statement of Work
 
-A Statement of Work (SOW) is a narrative description of the required work. It
-stipulates the deliverables or services required to fulfill the contract, and it
-defines the task to be accomplished or services to be delivered in clear,
-concise and meaningful terms. Examples below are written for the Rynok project.
-
-Contents:
-
-- [Introduction](#introduction)
-- [Statement of work template](#statement-of-work-template)
-  - [Title](#title)
-  - [Abstract](#abstract)
-  - [Value](#value)
-  - [Scope](#scope)
-  - [Payment](#payment)
-- [Purpose](#purpose)
-  - [Objectives](#objectives)
-  - [Performance](#performance)
-- [Who does what](#who-does-what)
-  - [People](#people)
-  - [Roles](#roles)
-  - [Responsibilities](#responsibilities)
-- [Context](#context)
-  - [Present](#present)
-  - [Future](#future)
-- [Planning](#planning)
-  - [Requirements](#requirements)
-- [Other terms and conditions](#other-terms-and-conditions)
-  - [Client's obligations](#clients-obligations)
-- [Schedule](#schedule)
-  - [Expected start date and completion date](#expected-start-date-and-completion-date)
-  - [Sign-off](#sign-off)
-
-
-## Statement of work template
-
-
-### Title
-
-The official title of the project.
+## Title
 
-Example: Rynok - Real Estate Marketplace with Cryptocurrency Payments.
+**Rynok – Decentralized Real Estate Marketplace**
 
+---
 
-### Abstract
+## Abstract
 
-Summarize the work, ideally in one paragraph.
+This Statement of Work (SOW) defines the objectives, scope, deliverables, responsibilities, and schedule for the development of **Rynok**, a decentralized real estate marketplace built on Ethereum. The platform enables users to register, connect their MetaMask wallet, publish properties, browse listings, and securely purchase real estate using ETH through an escrow smart contract. The project covers the complete software development lifecycle, including requirements analysis, UI/UX design, backend and frontend implementation, blockchain development, testing, deployment, and documentation.
 
-Include the most-relevant information about the project, objectives, issues,
-etc.
+---
 
-Example: This Statement of Work (SOW) outlines the objectives, scope,
-deliverables, and timelines for the development of Rynok, a web platform that
-allows any registered user to publish and purchase real estate properties
-using ETH through a connected Metamask wallet. The project aims to let
-property owners list their houses directly, and let buyers complete secure
-purchases through an escrow smart contract that protects both parties during
-the transaction. The vendor will be responsible for the full lifecycle of the
-project, including UX design, smart contract development, platform
-implementation, testing on a testnet, and post-launch support. The timeline
-for completion is estimated at 8-10 weeks, with key milestones and
-deliverables identified at each phase. This SOW ensures clear expectations,
-accountability, and performance standards throughout the duration of the
-project.
+## Value
 
+Rynok is developed as an academic and portfolio project intended to demonstrate modern full-stack blockchain development practices. The project provides value by showcasing secure cryptocurrency-based real estate transactions through smart contracts while eliminating traditional payment intermediaries.
 
-### Value
+Since this is not a commercial engagement, no contractual payments or financial compensation are involved.
 
-Summarize the estimated value of the work, ideally in one paragraph.
+---
 
-Include the most-relevant information about costs, including costs of products,
-services, materials, etc.
+## Scope
 
-If you prefer to provide more information about the value, then add an appendix
-section "Value".
+The project includes the design, implementation, testing, and deployment of a decentralized real estate marketplace with the following functionality:
 
-Example: The estimated value of the work outlined in this Statement of Work
-(SOW) covers the full scope of building and launching the Rynok MVP,
-including platform design, front-end and back-end development, escrow smart
-contract development and audit, and Metamask wallet integration. The budget
-also accounts for testnet deployment, gas costs for testing, and
-post-implementation support during the first weeks after mainnet launch.
-Payments will be made in installments upon completion of key milestones,
-ensuring alignment with project progress and deliverables. Any potential
-changes or additional requirements, such as support for additional
-cryptocurrencies or networks, will be assessed and billed separately, subject
-to agreement by both parties.
+- User registration and authentication.
+- MetaMask wallet integration.
+- Property listing management.
+- Property browsing and search.
+- Property detail pages.
+- ETH-based property purchases.
+- Escrow smart contract implementation.
+- Transaction history.
+- Testing and deployment.
+- Technical documentation.
 
+The project excludes fiat payments, mortgage services, KYC verification, native mobile applications, and multi-chain blockchain support.
 
-### Scope
+---
 
-Summarize the range of the work, extent of the work, and parameters of the work,
-ideally in one paragraph.
+## Payment
 
-Include the most-relevant information about any requirements, such as people,
-processes, tools, etc.
+**Not Applicable**
 
-If you prefer to provide more information about the value, then add an appendix
-section "Scope".
+Rynok is an independent academic project and does not involve contractual payments.
 
-Example: The scope of this project includes the end-to-end development,
-testing, and deployment of Rynok, a real estate marketplace where any
-registered user can publish a property and complete a purchase using ETH via
-Metamask. The work involves user registration and wallet connection, property
-listing management, search and discovery, and an escrow smart contract that
-holds funds until a transaction is confirmed. The project will require
-collaboration between the vendor's development team and the client's product
-stakeholders. Tools used will include a web front end, a back-end API, and
-Solidity smart contracts deployed first to a testnet and later to the
-Ethereum mainnet. The vendor will provide post-launch support to address any
-issues found after the first properties are listed and purchased on the
-platform.
+---
 
+# Purpose
 
-### Payment
+## Objectives
 
-Summarize the payment for the work, in one paragraph.
+The project aims to:
 
-Include the most-relevant budget requirements, payment schedule, transfer
-methods, etc.
+- Build a decentralized real estate marketplace.
+- Allow users to publish and purchase properties using Ethereum.
+- Secure transactions through escrow smart contracts.
+- Demonstrate blockchain integration with a modern web application.
+- Deliver a functional Minimum Viable Product (MVP).
 
-If you prefer to provide more information about the payment, then add an
-appendix section "Payment".
+---
 
-Example: The total budget for this project will be structured across key
-milestones. An initial payment will be due upon signing the contract to
-initiate the project. Subsequent payments will be made upon completion of UX
-and smart contract design, upon a working testnet version with wallet
-connection and listings, upon completion of the escrow smart contract and
-purchase flow, and a final payment upon successful testing and handover.
-Payments will be made via bank transfer or, if agreed by both parties, in ETH
-to a designated wallet, within an agreed number of days of invoice
-submission. Any changes to the project scope or timeline, such as adding
-support for stablecoins or additional networks, will be subject to additional
-billing, with prior written approval from the client.
+## Performance
 
+The project will be evaluated using both business and technical indicators.
 
-## Purpose
+### Business KPIs
 
+- Users can successfully publish property listings.
+- Users can complete property purchases through MetaMask.
+- Escrow transactions complete successfully on Ethereum Sepolia.
+- Documentation is complete and publicly available.
 
-### Objectives
+### Technical KPIs
 
-Describe the objectives of the work: what is to be achieved and delivered by the
-completion of the contract.
+- Platform uptime greater than 99%.
+- API average response time below 500 ms.
+- Smart contracts pass all test cases.
+- Zero critical vulnerabilities before deployment.
+- Successful completion of the complete purchase workflow.
 
-We recommend [Objectives and Key Results
-(OKRs)](http://github.com/joelparkerhenderson/objectives-and-key-results/).
+---
 
-Identify the most relevant goals, outcomes, and intended uses of the completed
-work.
+# Who Does What
 
-Example: The primary objective of this project is to design, develop, and
-launch Rynok, a platform where any registered user can publish and purchase
-real estate using ETH through Metamask. By the completion of the contract,
-the following key deliverables will be achieved: a functional web platform
-with property listing and search, wallet connection through Metamask, an
-audited escrow smart contract for secure transactions, and a tested purchase
-flow validated on a testnet before going live. The platform will be designed
-to give property owners an easy way to list their homes and give buyers
-confidence that their funds are protected until the transaction is complete.
-The successful completion of this project will result in a working
-crypto-native real estate marketplace ready for its first real users.
+## People
 
+| Name | Role |
+|------|------|
+| Diego Chourio | Full-Stack Blockchain Developer |
+| Leidy Obando | Full-Stack Developer & Documentation |
 
-### Performance
+---
 
-Describe the performance of the work: how the work is measured, what performance
-indicators are relevant, and what measurements and metrics are relevant.
+## Roles
 
-We recommend [Key Performance Indicators
-(KPIs)](http://github.com/joelparkerhenderson/key-performance-indicator/).
+### Diego Chourio
 
-Identify the most-relevant performance measurements and metrics, for the
-business aspects (e.g. net revenue, customer satisfaction) and for the technical
-aspects (e.g. average daily users, percent uptime).
+- Project planning
+- Backend development
+- Smart contract development
+- Blockchain integration
+- Deployment
 
-Example: The performance of this project will be measured through a
-combination of business and technical indicators to ensure that Rynok meets
-both functional requirements and organizational goals. Performance will be
-monitored through regular status meetings, user feedback, and testnet
-transaction reports. Adjustments and optimizations will be made as needed to
-meet or exceed these agreed-upon metrics.
+### Leidy Obando
 
-Example business performance metrics:
+- Frontend development
+- UI implementation
+- Documentation
+- Testing
+- Quality assurance
 
-* User Adoption: A target number of properties published and wallets
-  connected within the first month after launch.
+---
 
-* Transaction Completion Rate: A target percentage of initiated purchases
-  that are successfully completed through the escrow smart contract, without
-  abandonment.
+## Responsibilities
 
-Example system performance metrics:
+| Activity | Diego Chourio | Leidy Obando |
+|-----------|---------------|--------------|
+| Requirements Analysis | Responsible | Consulted |
+| UI Development | Consulted | Responsible |
+| Backend Development | Responsible | Consulted |
+| Smart Contracts | Responsible | Informed |
+| Database Design | Responsible | Consulted |
+| Testing | Responsible | Responsible |
+| Documentation | Consulted | Responsible |
+| Deployment | Responsible | Consulted |
 
-* Uptime: The platform must maintain a high uptime target during operation to
-  ensure continuous access to listings and transactions.
+---
 
-* Response Time: System response time should stay low for browsing and
-  listing actions, excluding on-chain confirmation times which depend on the
-  Ethereum network.
+# Context
 
-* Smart Contract Reliability: The escrow smart contract must pass all test
-  cases on the testnet, with zero critical vulnerabilities found in the
-  audit, before mainnet deployment.
+## Present
 
-* Transaction Accuracy: Funds released or refunded by the escrow smart
-  contract must match the expected outcome in 100% of tested cases.
+Current real estate platforms rely on traditional payment methods and financial intermediaries, making cryptocurrency transactions difficult and fragmented.
 
+Rynok addresses this problem by providing a decentralized marketplace where users can securely buy and sell properties using Ethereum and escrow smart contracts.
 
-## Who does what
+---
 
+## Future
 
-### People
+Future versions of the platform may include:
 
-Identify all the people who are involved a.k.a. the participants a.k.a. the
-stakeholders.
+- Stablecoin payments.
+- Multi-chain support.
+- Identity verification (KYC).
+- Property ownership verification.
+- Legal document generation.
+- Reputation system.
+- Interactive map search.
+- Mobile applications.
 
-Include employees, contractors, consultants, partners, vendors, customers,
-auditors, investors, advisors, etc., and provide relevant contact information,
-such as phone numbers, email addresses, messaging usernames, web links,
-availability hours, etc.
+---
 
-We suggest creating a document named "people" that contains this information,
-then continuously improving it.
+# Planning
 
+## Requirements
 
-### Roles
+The project will be developed following an Agile methodology and divided into incremental milestones.
 
-Identify the roles that are involved.
+### Milestone 1
 
-Include employee roles, contractor roles, consultant roles, partner roles,
-vendor roles, customer roles, auditor roles, investor roles, advisor roles,
-etc., and provide relevant role information, such as what the role does, its
-capabilities and limits, etc.
+- Requirements analysis
+- Project planning
+- System architecture
 
-Example roles for Rynok: property owner (publishes listings), buyer (browses
-and purchases properties), smart contract auditor, and platform
-administrator.
+### Milestone 2
 
-We suggest creating a document named "roles" that contains this information,
-then continuously improving it.
+- UI/UX implementation
+- User authentication
+- Wallet integration
 
+### Milestone 3
 
-### Responsibilities
+- Property management
+- Property search
+- Database implementation
 
-Identify the responsibilities that are involved.
+### Milestone 4
 
-We recommend using a responsibility assignment matrix (RAM) a.k.a. linear
-responsibility chart (LRC).
+- Escrow smart contract
+- Ethereum integration
+- Purchase workflow
 
-We suggest creating a document named "responsibilities" that contains this
-information, then continuously improving it. We use a RAM called a RACIO matrix.
-The matrix columns are roles. The matrix rows are areas of responsibility, such
-as task groupings. The matrix cells are role-task assignments. A matrix cell
-indicates the role-responsibility assignment as one of Responsible, Accountable,
-Consultable, Informable, Omittable. A matrix cell may also provide any
-assignment notes and details.
+### Milestone 5
 
+- Testing
+- Deployment
+- Documentation
 
-## Context
+Completion of each milestone requires successful implementation, testing, and approval before progressing to the next phase.
 
+---
 
-### Present
+# Other Terms and Conditions
 
-Identify how the work is involved with the overall organization, its objectives,
-its projects, and its industry.
+## Client's Obligations
 
-Describe the organization, end users, bibliography, references, technical
-experts in the field, etc.
+Not applicable.
 
-Include anything that will assist the contractor in formulating a good bid, and
-the client in achieving shared understanding.
+As this is an independently developed academic project, no external client obligations exist.
 
-Example: Rynok enters the real estate market as a crypto-native alternative
-to traditional listing platforms, targeting users who want to buy or sell
-property using ETH without relying on traditional payment rails.
+---
 
+# Schedule
 
-### Future
+## Expected Start Date and Completion Date
 
-Describe how the work relates to the future, such as of the project,
-organization, industry, etc.
+| Phase | Duration |
+|--------|----------|
+| Project Planning | Week 1 |
+| Requirements Analysis | Week 1 |
+| UI/UX Design | Week 2 |
+| Backend Development | Weeks 3–4 |
+| Frontend Development | Weeks 3–5 |
+| Smart Contract Development | Week 5 |
+| Wallet Integration | Week 6 |
+| Testing & Bug Fixes | Week 7 |
+| Deployment | Week 8 |
+| Documentation | Week 8 |
 
-Identify any relevant future roadmaps, future objectives, future work, etc.
+Estimated project duration:
 
-Identify any relevant future people, such as follow-on participants, potential
-upcoming stakeholders, etc.
+**8 Weeks**
 
-Example: Future phases of Rynok may include support for stablecoins and
-additional blockchain networks, identity and property ownership verification,
-a reputation system for buyers and sellers, and legal document automation for
-completed sales.
+---
 
+# Sign-off
 
-## Planning
+This Statement of Work describes the objectives, deliverables, responsibilities, scope, and expected outcomes for the Rynok project.
 
+Prepared by:
 
-### Requirements
-
-Describe the tasks or activities to be performed by the contractor.
-
-Include a detailed description of what is required for each of the identified
-deliverables.
-
-Provide sufficient information so that all parties will be able to understand
-what signals completion of a phase, or milestone, or deliverable.
-
-In most situations, this section will identify what methodology and sequence
-each of the deliverables will need to meet, how the deliverable will need to be
-delivered and what will be the relationship of one deliverable with another.
-This section will provide information on the language, format, version and
-content requirements for each task or activity and each deliverable or milestone
-in the work.
-
-It will also reference the Schedule and Estimated Level of Effort expected for
-completion of the work; any Specifications or Standards which will be used; and
-the Method and Source of Acceptance which will be applied by the Client to the
-deliverables. This information may help to establish a progress payment
-schedule.
-
-You may see all this information included in a table and/or text.
-
-
-## Other terms and conditions
-
-
-### Client's obligations
-
-Identify the access to facilities, the loan or use of Furnished Equipment, the
-access to documentation, networks, etc. which Client will provide to the
-Contractor. 
-
-The following are examples of the contents that may be included under this
-heading:
-
-* Ensure availability of staff with whom the contractor may need to consult.
-
-* Access to the Client's policies, procedures, publications, reports, studies,
-  etc.
-
-* Access to appropriate guidelines, standards, industry regulations.
-  
-* Provide comments on draft reports within five working days from receipt of
-  report.
-
-* Schedule events such as meetings, calls, conferences, if required.
-
-* Provide applicable documentation.
-
-
-## Schedule
-
-
-### Expected start date and completion date
-
-Identify the period in which the work is to be performed.
-
-More details are provided in the section of the SOW which identify the specific
-schedule which will be required for completion of the work.
-
-Example language:
-
-* The services of the Contractor will be required for a period of approximately
-  (weeks, months or years), commencing on or about (day, month, year), and with
-  expected completion on or about (day, month, year).
-
-This section may also specify allowable time for work, such as number of hours
-that can be billed per day, week, month, etc.
-
-
-### Sign-off
-
-The following phrase will appear at the end of each Statement of Work:
-
-NOTE: Before signing the Statement of Work, if you have any questions or
-concerns, please call the Work Authority indicated above to negotiate any
-issues.
-
-If you agree to the requirements of this Statement of Work, please sign and date
-the document which will be accepted as your proposal by Client, and return to my
-attention.
-
-Please return an original signature copy by mail.
-
-
-Printed Name:
-
-__________________________________________
-
-
-Signature:
-
-__________________________________________
-
+- Diego Chourio
+- Leidy Obando
 
 Date:
 
-__________________________________________
+____________________________
