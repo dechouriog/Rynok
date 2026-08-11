@@ -1,6 +1,34 @@
 # Rynok
 
-Rynok is a decentralized real estate platform that allows anyone to list and purchase properties using cryptocurrency (ETH) by connecting their MetaMask wallet directly to the platform.
+Rynok is a decentralized real estate marketplace that connects property owners and buyers through blockchain-based transactions using Ethereum.
 
-Registered users can publish their properties with photos, descriptions, and prices in ETH, while buyers can browse the marketplace, select a property, and complete the purchase securely through an escrow smart contract that holds the funds until the transaction is confirmed.
-```
+## Repository
+
+This repository contains the documentation, planning, requirements, and design artifacts for the Rynok project.
+
+## Documentation
+
+The complete project documentation is available in the [Rynok Wiki](https://github.com/dechouriog/Rynok/wiki).
+
+### Main Documents
+
+- [Project Wiki](https://github.com/dechouriog/Rynok/wiki) — Main project documentation.
+- [Diagrams](https://github.com/dechouriog/Rynok/wiki/Diagrams) — System design and modeling diagrams.
+- [Mockups](https://github.com/dechouriog/Rynok/wiki/Mockups) — User interface designs.
+- [Software Project Proposal](https://github.com/dechouriog/Rynok/wiki/Software-Project-Proposal) — Project proposal.
+- [MVP Scope](./mvp_scope.md) — Defined MVP scope and backlog.
+- [Statement of Work](./statement_of_work.md) — Project planning and work definition.
+- [Issues](https://github.com/dechouriog/Rynok/issues) — Project issues and user stories.
+
+## Project Status
+
+**Planning & Design**
+
+## Team
+
+- **Diego Chourio**
+- **Leidy Obando**
+
+---
+
+[Rynok Wiki](https://github.com/dechouriog/Rynok/wiki) · [Issues](https://github.com/dechouriog/Rynok/issues)
