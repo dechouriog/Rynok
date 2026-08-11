@@ -8,13 +8,15 @@
 
 ## Abstract
 
-This Statement of Work (SOW) defines the objectives, scope, deliverables, responsibilities, and schedule for the development of **Rynok**, a decentralized real estate marketplace built on Ethereum. The platform enables users to register, connect their MetaMask wallet, publish properties, browse listings, and securely purchase real estate using ETH through an escrow smart contract. The project covers the complete software development lifecycle, including requirements analysis, UI/UX design, backend and frontend implementation, blockchain development, testing, deployment, and documentation.
+This Statement of Work (SOW) defines the objectives, scope, deliverables, responsibilities, and schedule for the development of **Rynok**, a decentralized real estate marketplace built on Ethereum. The platform enables users to register, connect their MetaMask wallet, publish properties, browse listings, and securely purchase real estate using ETH through an escrow smart contract.
+
+The project covers the complete software development lifecycle, including requirements analysis, UI/UX design, backend and frontend implementation, blockchain development, testing, deployment, and documentation.
 
 ---
 
 ## Value
 
-Rynok is developed as an academic and portfolio project intended to demonstrate modern full-stack blockchain development practices. The project provides value by showcasing secure cryptocurrency-based real estate transactions through smart contracts while eliminating traditional payment intermediaries.
+Rynok is developed as an academic and portfolio project intended to demonstrate modern full-stack blockchain development practices. The project provides value by showcasing secure cryptocurrency-based real estate transactions through smart contracts while reducing reliance on traditional payment intermediaries.
 
 Since this is not a commercial engagement, no contractual payments or financial compensation are involved.
 
@@ -35,7 +37,16 @@ The project includes the design, implementation, testing, and deployment of a de
 - Testing and deployment.
 - Technical documentation.
 
-The project excludes fiat payments, mortgage services, KYC verification, native mobile applications, and multi-chain blockchain support.
+The project excludes:
+
+- Fiat payments.
+- Mortgage services.
+- KYC verification.
+- Native mobile applications.
+- Multi-chain blockchain support.
+- In-app chat or messaging.
+- Property tokenization.
+- Property pre-sales.
 
 ---
 
@@ -68,8 +79,10 @@ The project will be evaluated using both business and technical indicators.
 ### Business KPIs
 
 - Users can successfully publish property listings.
+- Users can search and view available properties.
 - Users can complete property purchases through MetaMask.
 - Escrow transactions complete successfully on Ethereum Sepolia.
+- Users can view their transaction history.
 - Documentation is complete and publicly available.
 
 ### Technical KPIs
@@ -87,7 +100,7 @@ The project will be evaluated using both business and technical indicators.
 ## People
 
 | Name | Role |
-|------|------|
+| --- | --- |
 | Diego Chourio | Full-Stack Blockchain Developer |
 | Leidy Obando | Full-Stack Developer & Documentation |
 
@@ -97,26 +110,27 @@ The project will be evaluated using both business and technical indicators.
 
 ### Diego Chourio
 
-- Project planning
-- Backend development
-- Smart contract development
-- Blockchain integration
-- Deployment
+- Project planning.
+- Backend development.
+- Smart contract development.
+- Blockchain integration.
+- Database design.
+- Deployment.
 
 ### Leidy Obando
 
-- Frontend development
-- UI implementation
-- Documentation
-- Testing
-- Quality assurance
+- Frontend development.
+- UI implementation.
+- Documentation.
+- Testing.
+- Quality assurance.
 
 ---
 
 ## Responsibilities
 
 | Activity | Diego Chourio | Leidy Obando |
-|-----------|---------------|--------------|
+| --- | --- | --- |
 | Requirements Analysis | Responsible | Consulted |
 | UI Development | Consulted | Responsible |
 | Backend Development | Responsible | Consulted |
@@ -157,39 +171,105 @@ Future versions of the platform may include:
 
 ## Requirements
 
-The project will be developed following an Agile methodology and divided into incremental milestones.
+The project will be developed following an Agile methodology and organized into five incremental milestones. Each milestone groups related functionality and deliverables from the project backlog.
 
-### Milestone 1
+### Milestone 1 — Foundation & Authentication
 
-- Requirements analysis
-- Project planning
-- System architecture
+Focuses on establishing the project foundation and implementing user authentication and wallet connectivity.
 
-### Milestone 2
+**Deliverables:**
 
-- UI/UX implementation
-- User authentication
-- Wallet integration
+- User registration and authentication.
+- MetaMask wallet integration.
+- Association of the wallet address with the user profile.
+- Display of wallet connection status.
+- Initial project and system foundation.
 
-### Milestone 3
+**Related Issues:**
 
-- Property management
-- Property search
-- Database implementation
+- RYN-001 — Register and Connect Wallet
 
-### Milestone 4
+---
 
-- Escrow smart contract
-- Ethereum integration
-- Purchase workflow
+### Milestone 2 — Property Marketplace
 
-### Milestone 5
+Focuses on the core real estate marketplace functionality, allowing users to publish, discover, view, and manage property listings.
 
-- Testing
-- Deployment
-- Documentation
+**Deliverables:**
 
-Completion of each milestone requires successful implementation, testing, and approval before progressing to the next phase.
+- Property listing creation.
+- Property browsing and search.
+- Property filtering.
+- Property detail pages.
+- Property listing editing and deletion.
+
+**Related Issues:**
+
+- RYN-002 — Publish Property Listing
+- RYN-003 — Browse and Search Properties
+- RYN-004 — View Property Details
+- RYN-007 — Edit or Delete Property Listing
+
+---
+
+### Milestone 3 — Blockchain & Escrow
+
+Focuses on the blockchain transaction infrastructure and escrow mechanism required to securely purchase properties.
+
+**Deliverables:**
+
+- MetaMask purchase workflow.
+- Ethereum transaction integration.
+- Escrow smart contract.
+- Secure fund deposit and release mechanism.
+- Refund mechanism through the smart contract.
+
+**Related Issues:**
+
+- RYN-005 — Purchase Property with MetaMask
+- RYN-006 — Escrow Smart Contract
+
+---
+
+### Milestone 4 — Transactions & Documentation
+
+Focuses on providing transaction visibility and documenting the main user workflow.
+
+**Deliverables:**
+
+- Buyer and seller transaction history.
+- Transaction status tracking.
+- User onboarding documentation.
+- Documentation of the main platform workflow.
+
+**Related Issues:**
+
+- RYN-008 — Transaction History
+- RYN-009 — User Onboarding Guide
+
+---
+
+### Milestone 5 — Testing & Finalization
+
+Focuses on validating the complete transaction workflow and preparing the project for final delivery.
+
+**Deliverables:**
+
+- End-to-end transaction flow testing.
+- Smart contract testing.
+- Integration testing.
+- Bug fixing and final validation.
+- Production/testnet deployment preparation.
+- Final deployment.
+- Final project preparation.
+
+**Related Issues:**
+
+- RYN-010 — Transaction Flow Testing
+
+---
+
+Completion of each milestone requires the implementation and validation of its associated functionality before the project progresses to the next stage.
 
 ---
 
@@ -208,7 +288,7 @@ As this is an independently developed academic project, no external client oblig
 ## Expected Start Date and Completion Date
 
 | Phase | Duration |
-|--------|----------|
+| --- | --- |
 | Project Planning | Week 1 |
 | Requirements Analysis | Week 1 |
 | UI/UX Design | Week 2 |
@@ -228,7 +308,7 @@ Estimated project duration:
 
 # Sign-off
 
-This Statement of Work describes the objectives, deliverables, responsibilities, scope, and expected outcomes for the Rynok project.
+This Statement of Work describes the objectives, deliverables, responsibilities, scope, milestones, and expected outcomes for the Rynok project.
 
 Prepared by:
 
@@ -237,4 +317,4 @@ Prepared by:
 
 Date:
 
-____________________________
+---
