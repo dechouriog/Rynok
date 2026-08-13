@@ -302,7 +302,7 @@ As this is an independently developed academic project, no external client oblig
 
 Estimated project duration:
 
-**8 Weeks**
+**15 Weeks**
 
 ---
 
