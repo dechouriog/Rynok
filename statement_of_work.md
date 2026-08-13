@@ -290,15 +290,15 @@ As this is an independently developed academic project, no external client oblig
 | Phase | Duration |
 | --- | --- |
 | Project Planning | Week 1 |
-| Requirements Analysis | Week 1 |
-| UI/UX Design | Week 2 |
-| Backend Development | Weeks 3–4 |
-| Frontend Development | Weeks 3–5 |
-| Smart Contract Development | Week 5 |
-| Wallet Integration | Week 6 |
-| Testing & Bug Fixes | Week 7 |
-| Deployment | Week 8 |
-| Documentation | Week 8 |
+| Requirements Analysis | Week 2 |
+| UI/UX Design | Week 4 |
+| Backend Development | Weeks 5–6 |
+| Frontend Development | Weeks 6–8 |
+| Smart Contract Development | Week 9 |
+| Wallet Integration | Week 10 |
+| Testing & Bug Fixes | Week 12 |
+| Deployment | Week 14 |
+| Documentation | Week 15 |
 
 Estimated project duration:
 
