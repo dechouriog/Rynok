@@ -1,9 +1,10 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Property } from './entities/property.entity';
-import { CreatePropertyDto } from './dto/create-property.dto';
-import { UpdatePropertyDto } from './dto/update-property.dto';
+import { Between, ILike, Repository } from 'typeorm';
+import { Property } from './entities/property.entity.js';
+import { CreatePropertyDto } from './dto/create-property.dto.js';
+import { UpdatePropertyDto } from './dto/update-property.dto.js';
+import { SearchPropertyDto } from './dto/search-property.dto.js';
 
 @Injectable()
 export class PropertyService {
@@ -16,6 +17,16 @@ export class PropertyService {
 
   findAll() {
     return this.repo.find({ order: { createdAt: 'DESC' } });
+  }
+
+  search(filters: SearchPropertyDto) {
+    const where: any = {};
+    if (filters.q) where.title = ILike(`%${filters.q}%`);
+    if (filters.location) where.location = ILike(`%${filters.location}%`);
+    if (filters.minPrice && filters.maxPrice) {
+      where.priceEth = Between(filters.minPrice, filters.maxPrice);
+    }
+    return this.repo.find({ where, order: { createdAt: 'DESC' } });
   }
 
   async findOne(id: string) {

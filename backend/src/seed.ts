@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { PropertyService } from './property/property.service';
-import { AuthService } from './auth/auth.service';
+import { AppModule } from './app.module.js';
+import { PropertyService } from './property/property.service.js';
+import { AuthService } from './auth/auth.service.js';
 import { Wallet } from 'ethers';
 
 async function seed() {

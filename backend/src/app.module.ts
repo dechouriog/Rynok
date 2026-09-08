@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from './auth/auth.module';
-import { PropertyModule } from './property/property.module';
+import { AuthModule } from './auth/auth.module.js';
+import { PropertyModule } from './property/property.module.js';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -19,6 +19,8 @@ import { PropertyModule } from './property/property.module';
         synchronize: true,
       }),
     }),
+    AuthModule,
+    PropertyModule,
   ],
 })
 export class AppModule {}

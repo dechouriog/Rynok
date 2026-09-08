@@ -1,6 +1,6 @@
 import './globals.css';
-import { Navbar } from '@/src/components/Navbar';
-import { WalletProvider } from '@/src/context/WalletContext';
+import { Navbar } from '@/components/Navbar';
+import { WalletProvider } from '@/context/WalletContext';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

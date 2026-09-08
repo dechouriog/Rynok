@@ -1,10 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { PropertyService } from './property.service';
-import { CreatePropertyDto } from './dto/create-property.dto';
-import { UpdatePropertyDto } from './dto/update-property.dto';
-import { SearchPropertyDto } from './dto/search-property.dto';
-import { WalletAuthGuard } from '../auth/wallet-auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
+import { PropertyService } from './property.service.js';
+import { CreatePropertyDto } from './dto/create-property.dto.js';
+import { UpdatePropertyDto } from './dto/update-property.dto.js';
+import { SearchPropertyDto } from './dto/search-property.dto.js';
+import { WalletAuthGuard } from '../auth/wallet-auth.guard.js';
+import { CurrentUser } from '../auth/current-user.decorator.js';
 
 @Controller('properties')
 export class PropertyController {

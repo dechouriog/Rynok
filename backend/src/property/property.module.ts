@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Property } from './entities/property.entity';
-import { PropertyService } from './property.service';
-import { PropertyController } from './property.controller';
-import { AuthModule } from '../auth/auth.module';
+import { Property } from './entities/property.entity.js';
+import { PropertyService } from './property.service.js';
+import { PropertyController } from './property.controller.js';
+import { AuthModule } from '../auth/auth.module.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Property]), AuthModule],

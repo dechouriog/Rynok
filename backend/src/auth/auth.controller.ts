@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { ConnectWalletDto } from './dto/connect-wallet.dto';
-import { WalletAuthGuard } from './wallet-auth.guard';
-import { CurrentUser } from './current-user.decorator';
+import { AuthService } from './auth.service.js';
+import { ConnectWalletDto } from './dto/connect-wallet.dto.js';
+import { WalletAuthGuard } from './wallet-auth.guard.js';
+import { CurrentUser } from './current-user.decorator.js';
 
 @Controller('auth')
 export class AuthController {

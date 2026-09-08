@@ -1,12 +1,13 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { Wallet } from 'ethers';
-import { AuthService } from './auth.service';
-import { User } from '../user/entities/user.entity';
+import { AuthService } from './auth.service.js';
+import { User } from '../user/entities/user.entity.js';
 
-const mockRepo = () => ({ findOneBy: jest.fn(), create: jest.fn(), save: jest.fn() });
+const mockRepo = () => ({ findOneBy: vi.fn(), create: vi.fn(), save: vi.fn() });
 
 describe('AuthService', () => {
   let service: AuthService;

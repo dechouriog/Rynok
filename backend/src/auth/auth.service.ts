@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { verifyMessage } from 'ethers';
-import { User } from '../user/entities/user.entity';
-import { ConnectWalletDto } from './dto/connect-wallet.dto';
+import { User } from '../user/entities/user.entity.js';
+import { ConnectWalletDto } from './dto/connect-wallet.dto.js';
 
 @Injectable()
 export class AuthService {

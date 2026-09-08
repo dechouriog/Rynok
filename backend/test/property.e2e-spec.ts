@@ -1,10 +1,11 @@
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as request from 'supertest';
+import request from 'supertest';
 import { Wallet } from 'ethers';
-import { AuthModule } from '../src/auth/auth.module';
-import { PropertyModule } from '../src/property/property.module';
+import { AuthModule } from '../src/auth/auth.module.js';
+import { PropertyModule } from '../src/property/property.module.js';
 
 describe('PropertyController (e2e)', () => {
   let app: INestApplication;
@@ -13,7 +14,7 @@ describe('PropertyController (e2e)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({ type: 'sqlite', database: ':memory:', autoLoadEntities: true, synchronize: true }),
+        TypeOrmModule.forRoot({ type: 'better-sqlite3', database: ':memory:', autoLoadEntities: true, synchronize: true }),
         AuthModule,
         PropertyModule,
       ],

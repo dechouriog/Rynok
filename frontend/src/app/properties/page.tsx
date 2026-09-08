@@ -4,8 +4,9 @@ import { PropertySearchBar } from '@/components/PropertySearchBar';
 
 export default async function PropertiesPage({
   searchParams,
-}: { searchParams: { q?: string; location?: string } }) {
-  const properties = await getProperties(searchParams);
+}: { searchParams: Promise<{ q?: string; location?: string }> }) {
+  const filters = await searchParams;
+  const properties = await getProperties(filters);
 
   return (
     <>

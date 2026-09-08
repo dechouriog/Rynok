@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Property } from '../../property/entities/property.entity';
+import { Property } from '../../property/entities/property.entity.js';
 
 @Entity('users')
 export class User {

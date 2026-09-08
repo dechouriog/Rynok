@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ConnectWalletButton } from '@/src/components/ConnectWalletButton';
+import { ConnectWalletButton } from '@/components/ConnectWalletButton';
 
 export function Navbar() {
   return (

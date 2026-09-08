@@ -1,12 +1,13 @@
 import { getProperty } from '@/lib/api';
-import { PropertyOwnerActions } from '@/src/components/PropertyOwnerActions';
+import { PropertyOwnerActions } from '@/components/PropertyOwnerActions';
 
 export default async function PropertyDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const property = await getProperty(params.id);
+  const { id } = await params;
+  const property = await getProperty(id);
 
   return (
     <article className="max-w-2xl mx-auto">

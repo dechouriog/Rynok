@@ -1,11 +1,12 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { PropertyService } from './property.service';
-import { Property } from './entities/property.entity';
+import { PropertyService } from './property.service.js';
+import { Property } from './entities/property.entity.js';
 
 const mockRepo = () => ({
-  create: jest.fn(), save: jest.fn(), find: jest.fn(), findOneBy: jest.fn(), remove: jest.fn(),
+  create: vi.fn(), save: vi.fn(), find: vi.fn(), findOneBy: vi.fn(), remove: vi.fn(),
 });
 
 describe('PropertyService', () => {

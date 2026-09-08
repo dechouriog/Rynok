@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { WalletProvider, useWallet } from '../WalletContext';
-import * as api from '@/lib/api';
 
-jest.mock('@/lib/api');
+vi.mock('@/lib/api');
 
 function TestComponent() {
   const { address, connect } = useWallet();
@@ -16,7 +16,7 @@ function TestComponent() {
 
 describe('WalletContext', () => {
   beforeEach(() => {
-    (window as any).ethereum = { request: jest.fn() };
+    (window as any).ethereum = { request: vi.fn() };
   });
 
   it('muestra "sin conectar" antes de conectar', () => {
