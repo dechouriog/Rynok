@@ -1,5 +1,12 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Property } from '../../property/entities/property.entity.js';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import type { Relation } from 'typeorm';
+import type { Property } from '../../property/entities/property.entity.js';
 
 @Entity('users')
 export class User {
@@ -12,8 +19,8 @@ export class User {
   @Column({ nullable: true })
   displayName?: string;
 
-  @OneToMany(() => Property, (property) => property.owner)
-  properties: Property[];
+  @OneToMany('Property', 'owner')
+  properties: Relation<Property>[];
 
   @CreateDateColumn()
   createdAt: Date;

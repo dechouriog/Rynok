@@ -1,5 +1,12 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../../user/entities/user.entity.js';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import type { Relation } from 'typeorm';
+import type { User } from '../../user/entities/user.entity.js';
 
 @Entity('properties')
 export class Property {
@@ -21,8 +28,8 @@ export class Property {
   @Column({ nullable: true })
   imageUrl?: string;
 
-  @ManyToOne(() => User, (user) => user.properties, { eager: true })
-  owner: User;
+  @ManyToOne('User', 'properties', { eager: true })
+  owner: Relation<User>;
 
   @CreateDateColumn()
   createdAt: Date;
