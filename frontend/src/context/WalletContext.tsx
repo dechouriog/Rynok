@@ -8,6 +8,7 @@ type WalletState = {
   address: string | null;
   token: string | null;
   connect: () => Promise<void>;
+  disconnect: () => void;
   profile: { id: string; walletAddress: string; displayName?: string } | null;
   isConnecting: boolean;
   error: string | null;
@@ -76,12 +77,21 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function disconnect() {
+    setAddress(null);
+    setToken(null);
+    setProfile(null);
+    sessionStorage.removeItem('rynok_token');
+    sessionStorage.removeItem('rynok_address');
+  }
+
   return (
     <WalletContext.Provider
       value={{
         address,
         token,
         connect,
+        disconnect,
         profile,
         isConnecting,
         error,

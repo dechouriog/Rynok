@@ -5,11 +5,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        rynok: {
-          primary: '#0F172A',   // navy oscuro (botones, logo icon, texto fuerte)
-          accent: '#2563EB',    // azul (nombre "Rynok", links activos)
-          muted: '#64748B',     // gris de subtítulos
-          surface: '#EEF2FF',   // fondo lavanda claro del hero
+        brand: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          400: '#60a5fa',
+          500: '#2563eb',
+          600: '#1d4ed8',
+          900: '#1e3a8a',
         },
       },
     },

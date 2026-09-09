@@ -18,9 +18,11 @@ export function PropertyOwnerActions({ property }: { property: Property }) {
   }
 
   return (
-    <div className="flex gap-3 mt-4">
-      <a href={`/properties/${property.id}/edit`} className="border px-3 py-1.5 rounded text-sm">Editar</a>
-      <button onClick={handleDelete} className="border border-red-400 text-red-500 px-3 py-1.5 rounded text-sm">
+    <div className="mt-4 flex gap-3">
+      <a href={`/properties/${property.id}/edit`} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
+        Editar
+      </a>
+      <button onClick={handleDelete} className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50">
         Eliminar
       </button>
     </div>

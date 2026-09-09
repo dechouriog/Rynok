@@ -4,15 +4,24 @@ import { useParams, useRouter } from 'next/navigation';
 import { getProperty, updateProperty } from '@/lib/api';
 import { useWallet } from '@/context/WalletContext';
 
+const inputClass =
+  'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500';
+
 export default function EditPropertyPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { token } = useWallet();
-  const [form, setForm] = useState({ title: '', description: '', location: '', priceEth: '' });
+  const [form, setForm] = useState({ title: '', description: '', location: '', priceEth: '', imageUrl: '' });
 
   useEffect(() => {
     getProperty(id).then((p) =>
-      setForm({ title: p.title, description: p.description, location: p.location, priceEth: p.priceEth }),
+      setForm({
+        title: p.title,
+        description: p.description,
+        location: p.location,
+        priceEth: p.priceEth,
+        imageUrl: p.imageUrl ?? '',
+      }),
     );
   }, [id]);
 
@@ -24,16 +33,38 @@ export default function EditPropertyPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto flex flex-col gap-3">
-      <input className="border p-2 rounded" value={form.title}
-        onChange={(e) => setForm({ ...form, title: e.target.value })} />
-      <textarea className="border p-2 rounded" value={form.description}
-        onChange={(e) => setForm({ ...form, description: e.target.value })} />
-      <input className="border p-2 rounded" value={form.location}
-        onChange={(e) => setForm({ ...form, location: e.target.value })} />
-      <input className="border p-2 rounded" type="number" step="0.0001" value={form.priceEth}
-        onChange={(e) => setForm({ ...form, priceEth: e.target.value })} />
-      <button type="submit" className="bg-rynok-primary text-white py-2 rounded">Guardar cambios</button>
-    </form>
+    <div className="mx-auto max-w-2xl px-4 py-10">
+      <h1 className="text-2xl font-bold text-slate-900">Editar propiedad</h1>
+      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <div>
+          <label className="text-sm font-medium text-slate-700">Título</label>
+          <input className={inputClass} value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })} />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-slate-700">Descripción</label>
+          <textarea rows={4} className={inputClass} value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-slate-700">Ubicación</label>
+          <input className={inputClass} value={form.location}
+            onChange={(e) => setForm({ ...form, location: e.target.value })} />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-slate-700">Precio en ETH</label>
+          <input className={inputClass} type="number" step="0.0001" value={form.priceEth}
+            onChange={(e) => setForm({ ...form, priceEth: e.target.value })} />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-slate-700">URL de imagen</label>
+          <input className={inputClass} value={form.imageUrl}
+            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
+        </div>
+        <button type="submit" className="w-full rounded-lg bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800">
+          Guardar cambios
+        </button>
+      </form>
+    </div>
   );
 }

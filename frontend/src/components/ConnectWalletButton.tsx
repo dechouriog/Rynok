@@ -13,13 +13,15 @@ export function ConnectWalletButton() {
     <div className="flex flex-col items-end">
       <button
         onClick={connect}
-        disabled={isConnecting}
-        className="flex items-center gap-2 bg-rynok-primary text-white px-4 py-2 rounded-full text-sm font-medium"
+        disabled={isConnecting || !!address}
+        className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white ${
+          address ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-900 hover:bg-slate-800'
+        }`}
       >
-        <Wallet size={16} />
+        <Wallet className="h-4 w-4" />
         {address ? shorten(address) : isConnecting ? 'Conectando...' : 'Conectar wallet'}
       </button>
-      {error && <span className="text-xs text-red-400 mt-1">{error}</span>}
+      {error && <span className="mt-1 text-xs text-red-500">{error}</span>}
     </div>
   );
 }

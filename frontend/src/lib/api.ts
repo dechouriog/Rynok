@@ -27,8 +27,16 @@ export type Property = {
   createdAt: string;
 };
 
-export async function getProperties(filters?: { q?: string; location?: string }): Promise<Property[]> {
-  const params = new URLSearchParams(filters as any).toString();
+export async function getProperties(filters?: {
+  q?: string;
+  location?: string;
+  minPrice?: string;
+  maxPrice?: string;
+}): Promise<Property[]> {
+  const clean = Object.fromEntries(
+    Object.entries(filters ?? {}).filter(([, value]) => Boolean(value)),
+  );
+  const params = new URLSearchParams(clean).toString();
   const res = await fetch(`${API_URL}/properties${params ? `?${params}` : ''}`, { cache: 'no-store' });
   if (!res.ok) throw new Error('No se pudieron cargar las propiedades');
   return res.json();
