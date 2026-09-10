@@ -78,7 +78,6 @@ The complete project documentation is available in the [Rynok Wiki](https://gith
 
 - [Test Evidence](docs/test_evidence.md) — Test coverage report for backend and frontend.
 - [AI Usage](docs/ai_usage.md) — Disclosure of where and how AI assistance was used during development.
-- [Defense Guide (English)](docs/defense_guide.md) / [Guía de Defensa (Español)](docs/guia_defensa.md) — Technology justification, code walkthrough with line references, and anticipated questions for the project defense.
 
 ## Team
 
