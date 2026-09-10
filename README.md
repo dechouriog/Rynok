@@ -70,7 +70,6 @@ The complete project documentation is available in the [Rynok Wiki](https://gith
 
 ### Architecture & API
 
-- [System Diagrams](docs/System-Diagrams.md) / [Architecture](docs/architecture.md) — Architecture, use case, component, and entity-relationship diagrams, matching the current codebase.
 - [Stack Justification](docs/stack_justification.md) — Why each technology was chosen, with trade-offs.
 - API documentation is generated live from the code — run the backend and visit `/api/docs`.
 
