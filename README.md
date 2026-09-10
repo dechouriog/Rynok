@@ -77,7 +77,7 @@ The complete project documentation is available in the [Rynok Wiki](https://gith
 ### Quality & Process
 
 - [Test Evidence](docs/test_evidence.md) — Test coverage report for backend and frontend.
-- [AI Usage](docs/ai_usage.md) — Disclosure of where and how AI assistance was used during development.
+- [AI Usage](docs/IA_Doc.md) — Disclosure of where and how AI assistance was used during development.
 
 ## Team
 
