@@ -5,8 +5,8 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title Escrow
 /// @notice Retiene el pago en ETH de una propiedad hasta que el comprador
-/// confirma la entrega. El vendedor recibe los fondos únicamente después
-/// de que el comprador confirme la entrega.
+/// confirma la entrega. El vendedor puede reembolsar el pago si la venta
+/// no se concreta.
 contract Escrow is ReentrancyGuard {
     enum Status {
         NONE,
@@ -33,7 +33,13 @@ contract Escrow is ReentrancyGuard {
         uint256 amount
     );
 
-    event Released(uint256 indexed propertyId);
+    event Released(
+        uint256 indexed propertyId
+    );
+
+    event Refunded(
+        uint256 indexed propertyId
+    );
 
     /// @notice Deposita ETH para una propiedad.
     /// @param propertyId Identificador único de la propiedad.
@@ -100,5 +106,35 @@ contract Escrow is ReentrancyGuard {
         );
 
         emit Released(propertyId);
+    }
+
+    /// @notice El vendedor puede devolver los fondos al comprador.
+    /// @dev Solo puede ejecutarse mientras el deposito esté pendiente.
+    /// @param propertyId Identificador único de la propiedad.
+    function refund(
+        uint256 propertyId
+    ) external nonReentrant {
+        Deal storage deal = deals[propertyId];
+
+        require(
+            deal.status == Status.AWAITING_DELIVERY,
+            "No hay un deposito pendiente"
+        );
+
+        require(
+            msg.sender == deal.seller,
+            "Solo el vendedor puede reembolsar"
+        );
+
+        deal.status = Status.REFUNDED;
+
+        (bool sent, ) = deal.buyer.call{value: deal.amount}("");
+
+        require(
+            sent,
+            "Reembolso fallido"
+        );
+
+        emit Refunded(propertyId);
     }
 }
