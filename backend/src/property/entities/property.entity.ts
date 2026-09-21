@@ -1,6 +1,19 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
 import type { Relation } from 'typeorm';
 import type { User } from '../../user/entities/user.entity.js';
+
+export enum PropertyStatus {
+  AVAILABLE = 'AVAILABLE',
+  IN_ESCROW = 'IN_ESCROW',
+  SOLD = 'SOLD',
+}
 
 @Entity('properties')
 export class Property {
@@ -24,6 +37,13 @@ export class Property {
 
   @ManyToOne('User', 'properties', { eager: true })
   owner: Relation<User>;
+
+  @Column({
+    type: 'enum',
+    enum: PropertyStatus,
+    default: PropertyStatus.AVAILABLE,
+  })
+  status: PropertyStatus;
 
   @CreateDateColumn()
   createdAt: Date;
