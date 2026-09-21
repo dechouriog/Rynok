@@ -1,17 +1,18 @@
 # 2. MVP Scope
 
-| Status | Feature | Description | Entrega 1 Status |
+| Status | Feature | Description | Delivery Status |
 |--------|---------|-------------|-------------------|
-| **IN** | User Registration & Login | Users can create an account and securely log in. |  Delivered (wallet-signature auth) |
-| **IN** | MetaMask Integration | Connect a MetaMask wallet to the user account. |  Delivered |
-| **IN** | Property Listings | Publish properties with photos, description, location, and price in ETH. |  Delivered |
-| **IN** | Listing Management | Edit or delete owned property listings. |  Delivered |
-| **IN** | Property Search | Browse and filter properties by location, price, and property type. |  Delivered (location, price range, sort) |
-| **IN** | Property Details | View complete information for a selected property. |  Delivered |
-| **IN** | Crypto Purchase | Purchase properties using ETH through MetaMask. | ⏳ Planned — Milestone 3 |
-| **IN** | Escrow Smart Contract | Hold buyer funds securely until the transaction is completed. |  Planned — Milestone 3 |
-| **IN** | Escrow Settlement | Release funds to the seller or refund the buyer when appropriate. |  Planned — Milestone 3 |
-| **IN** | Transaction History | Display purchase and sale history for each user. |  Planned — Milestone 4 |
+| **IN** | User Registration & Login | Users can create an account and securely log in. | Delivered (wallet-signature auth) — Entrega 1 |
+| **IN** | MetaMask Integration | Connect a MetaMask wallet to the user account. | Delivered — Entrega 1 |
+| **IN** | Property Listings | Publish properties with photos, description, location, and price in ETH. | Delivered — Entrega 1 |
+| **IN** | Listing Management | Edit or delete owned property listings. | Delivered — Entrega 1 |
+| **IN** | Property Search | Browse and filter properties by location, price, and property type. | Delivered (location, price range, sort) — Entrega 1 |
+| **IN** | Property Details | View complete information for a selected property. | Delivered — Entrega 1 |
+| **IN** | Crypto Purchase | Purchase properties using ETH through MetaMask. | In progress — Milestone 3 |
+| **IN** | Escrow Smart Contract | Hold buyer funds securely until the transaction is completed. | In progress — Milestone 3, Hardhat project initialized |
+| **IN** | Escrow Settlement | Release funds to the seller or refund the buyer when appropriate. | In progress — Milestone 3 |
+| **IN** | Transaction History | Display purchase and sale history for each user. | Planned — Milestone 4, blocked by M3 |
+| **IN** | User Onboarding Guide | In-app guidance and written documentation for new users. | Planned — Milestone 4 |
 | **OUT** | Fiat Payments | Credit card and bank transfer payments are not included in the MVP. | — |
 | **OUT** | Multi-Chain Support | Polygon, BNB Chain, and other networks are excluded from the MVP. | — |
 | **OUT** | Identity Verification | KYC and legal property ownership verification are excluded. | — |
@@ -41,4 +42,4 @@ The objective of the MVP is to provide the essential functionality required to l
 ---
 
 See `docs/statement_of_work.md` for the milestone-by-milestone delivery status, and
-`docs/ai_usage.md` for disclosure of AI-assisted work during this delivery.
+`docs/IA_Doc.md` for disclosure of AI-assisted work during this delivery.

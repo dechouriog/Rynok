@@ -275,22 +275,30 @@ Completion of each milestone requires the implementation and validation of its a
 
 # Delivery Status
 
-## Entrega 1 (current delivery)
+## Entrega 1 (delivered)
 
 Entrega 1 covers **Milestone 1 (Foundation & Authentication)** and **Milestone 2
 (Property Marketplace)** in full. Milestones 3–5 (blockchain escrow, transaction
-history, and final testing/deployment) remain scoped for future deliveries and are
+history, and final testing/deployment) were scoped for future deliveries and were
 explicitly marked as not-yet-implemented in the MVP Scope document and in the
-frontend (property purchase and escrow screens display an honest "coming soon" state
-rather than simulated data).
+frontend (property purchase and escrow screens displayed an honest "coming soon"
+state rather than simulated data).
+
+## Entrega 2 (in progress)
+
+Milestone 3 development has started: the Hardhat project under `contracts/` has
+been initialized. The `Escrow.sol` contract, its tests, the backend integration
+(`EscrowTransaction`), and the frontend purchase flow are being implemented next.
+Milestone 4 (transaction history and user onboarding) depends on Milestone 3
+being complete first, since it builds directly on the `EscrowTransaction` entity.
 
 | Milestone | Status | Notes |
 | --- | --- | --- |
-| M1 — Foundation & Authentication |  Delivered | Wallet-based authentication (signature verification), JWT session, wallet connect/disconnect UI. |
-| M2 — Property Marketplace |  Delivered | CRUD, search/filter, ownership-based edit/delete, dashboard with real user data. |
-| M3 — Blockchain & Escrow |  Not started | Planned for the next delivery. |
-| M4 — Transactions & Documentation |  Not started | Depends on M3. |
-| M5 — Testing & Finalization |  Partial | Unit and integration testing exist for M1/M2; end-to-end blockchain testing depends on M3. |
+| M1 — Foundation & Authentication | Delivered | Wallet-based authentication (signature verification), JWT session, wallet connect/disconnect UI. |
+| M2 — Property Marketplace | Delivered | CRUD, search/filter, ownership-based edit/delete, dashboard with real user data. |
+| M3 — Blockchain & Escrow | In progress | Hardhat project initialized (`contracts/`). Contract, tests, and backend/frontend integration underway. |
+| M4 — Transactions & Documentation | Not started | Blocked by M3. |
+| M5 — Testing & Finalization | Partial | Unit and integration testing exist for M1/M2; end-to-end blockchain testing depends on M3. |
 
 AI-assisted development (delivery planning, bug fixing, and frontend implementation)
 was used during this delivery. See `docs/ai_usage.md` for full disclosure.
