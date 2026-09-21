@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { AuthModule } from './auth/auth.module.js';
 import { PropertyModule } from './property/property.module.js';
+import { EscrowModule } from './escrow/escrow.module.js';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -19,8 +23,10 @@ import { PropertyModule } from './property/property.module.js';
         synchronize: true,
       }),
     }),
+
     AuthModule,
     PropertyModule,
+    EscrowModule,
   ],
 })
 export class AppModule {}
