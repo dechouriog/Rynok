@@ -180,3 +180,36 @@ export async function recordEscrowDeposit(
 
   return res.json();
 }
+
+export type EscrowTransaction = {
+  id: string;
+  propertyId: string;
+  buyerWallet: string;
+  sellerWallet: string;
+  amountEth: string;
+  status: 'AWAITING_DELIVERY' | 'COMPLETE' | 'REFUNDED';
+  depositTxHash: string;
+  releaseTxHash?: string;
+  createdAt: string;
+};
+
+export async function getMyTransactions(
+  token: string,
+): Promise<EscrowTransaction[]> {
+  const res = await fetch(
+    `${API_URL}/escrow/my-transactions`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(
+      'No se pudo cargar el historial de transacciones',
+    );
+  }
+
+  return res.json();
+}
