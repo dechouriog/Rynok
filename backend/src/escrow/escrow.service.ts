@@ -51,6 +51,16 @@ export class EscrowService {
     });
   }
 
+  findForUser(wallet: string) {
+    return this.repo.find({
+      where: [
+        { buyerWallet: wallet },
+        { sellerWallet: wallet },
+      ],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async confirmRelease(
     propertyId: string,
     requesterWallet: string,
