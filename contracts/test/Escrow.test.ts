@@ -1,12 +1,13 @@
 import { expect } from 'chai';
-import { ethers } from 'hardhat';
+import { network } from 'hardhat';
+
+const { ethers } = await network.create();
 
 describe('Escrow', () => {
   async function deployFixture() {
     const [seller, buyer] = await ethers.getSigners();
 
-    const Escrow = await ethers.getContractFactory('Escrow');
-    const escrow = await Escrow.deploy();
+    const escrow = await ethers.deployContract('Escrow');
 
     const propertyId = ethers.keccak256(
       ethers.toUtf8Bytes('property-1')

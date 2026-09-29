@@ -32,7 +32,7 @@ export class EscrowTransaction {
   @Column({ nullable: true })
   releaseTxHash?: string;
 
-  @Column({ type: 'enum', enum: EscrowStatus, default: EscrowStatus.AWAITING_DELIVERY })
+  @Column({ type: 'simple-enum', enum: EscrowStatus, default: EscrowStatus.AWAITING_DELIVERY })
   status: EscrowStatus;
 
   @CreateDateColumn()

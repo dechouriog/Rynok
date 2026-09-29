@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import request from 'supertest';
-import { Wallet } from 'ethers';
+import { Wallet, type HDNodeWallet } from 'ethers';
 import { AuthModule } from '../src/auth/auth.module.js';
 import { PropertyModule } from '../src/property/property.module.js';
 import { EscrowModule } from '../src/escrow/escrow.module.js';
@@ -11,7 +11,7 @@ import { EscrowModule } from '../src/escrow/escrow.module.js';
 describe('Escrow — historial (e2e)', () => {
   let app: INestApplication;
   let token: string;
-  let wallet: Wallet;
+  let wallet: HDNodeWallet;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({

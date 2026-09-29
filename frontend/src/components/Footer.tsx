@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ResetOnboardingButton } from './ResetOnboardingButton';
 
 export function Footer() {
   return (
@@ -50,15 +51,7 @@ export function Footer() {
             </li>
 
             <li>
-              <button
-                onClick={() => {
-                  localStorage.removeItem('rynok_onboarding_seen');
-                  window.location.reload();
-                }}
-                className="hover:text-slate-900"
-              >
-                Ver guía de inicio
-              </button>
+              <ResetOnboardingButton />
             </li>
           </ul>
         </div>

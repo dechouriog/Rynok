@@ -1,9 +1,8 @@
-import { ethers } from 'hardhat';
+import { network } from 'hardhat';
 
 async function main() {
-  const Escrow = await ethers.getContractFactory('Escrow');
-  const escrow = await Escrow.deploy();
-  await escrow.waitForDeployment();
+  const { ethers } = await network.create();
+  const escrow = await ethers.deployContract('Escrow');
   console.log(`Escrow desplegado en: ${await escrow.getAddress()}`);
 }
 

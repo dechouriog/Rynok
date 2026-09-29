@@ -39,7 +39,7 @@ export class Property {
   owner: Relation<User>;
 
   @Column({
-    type: 'enum',
+    type: 'simple-enum',
     enum: PropertyStatus,
     default: PropertyStatus.AVAILABLE,
   })
