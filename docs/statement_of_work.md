@@ -284,21 +284,22 @@ explicitly marked as not-yet-implemented in the MVP Scope document and in the
 frontend (property purchase and escrow screens displayed an honest "coming soon"
 state rather than simulated data).
 
-## Entrega 2 (in progress)
+## Entrega 2 (delivered)
 
-Milestone 3 development has started: the Hardhat project under `contracts/` has
-been initialized. The `Escrow.sol` contract, its tests, the backend integration
-(`EscrowTransaction`), and the frontend purchase flow are being implemented next.
-Milestone 4 (transaction history and user onboarding) depends on Milestone 3
-being complete first, since it builds directly on the `EscrowTransaction` entity.
+Milestone 3 is complete: the `Escrow.sol` contract (deposit, delivery
+confirmation, and refund), its unit tests, the backend integration
+(`EscrowTransaction`), and the real MetaMask purchase flow on the frontend are
+implemented. Milestone 4 is complete: the transaction history view and the
+user onboarding guide are implemented, building on top of the `EscrowTransaction`
+entity delivered in Milestone 3.
 
 | Milestone | Status | Notes |
 | --- | --- | --- |
 | M1 — Foundation & Authentication | Delivered | Wallet-based authentication (signature verification), JWT session, wallet connect/disconnect UI. |
 | M2 — Property Marketplace | Delivered | CRUD, search/filter, ownership-based edit/delete, dashboard with real user data. |
-| M3 — Blockchain & Escrow | In progress | Hardhat project initialized (`contracts/`). Contract, tests, and backend/frontend integration underway. |
-| M4 — Transactions & Documentation | Not started | Blocked by M3. |
-| M5 — Testing & Finalization | Partial | Unit and integration testing exist for M1/M2; end-to-end blockchain testing depends on M3. |
+| M3 — Blockchain & Escrow | Delivered | `Escrow.sol` (deposit/confirmDelivery/refund), contract tests, backend `EscrowTransaction`, real MetaMask purchase flow. |
+| M4 — Transactions & Documentation | Delivered | Transaction history (`/escrow`), dashboard recent activity, onboarding modal, and user guide. |
+| M5 — Testing & Finalization | Partial | Unit and integration testing exist for M1–M4; final end-to-end validation on a live testnet and production deployment still pending. |
 
 AI-assisted development (delivery planning, bug fixing, and frontend implementation)
 was used during this delivery. See `docs/ai_usage.md` for full disclosure.
