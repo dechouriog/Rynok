@@ -8,9 +8,9 @@
 | **IN** | Listing Management | Edit or delete owned property listings. | Delivered — Entrega 1 |
 | **IN** | Property Search | Browse and filter properties by location, price, and property type. | Delivered (location, price range, sort) — Entrega 1 |
 | **IN** | Property Details | View complete information for a selected property. | Delivered — Entrega 1 |
-| **IN** | Crypto Purchase | Purchase properties using ETH through MetaMask. | Delivered — Milestone 3 |
-| **IN** | Escrow Smart Contract | Hold buyer funds securely until the transaction is completed. | Delivered — Milestone 3 |
-| **IN** | Escrow Settlement | Release funds to the seller or refund the buyer when appropriate. | Delivered — Milestone 3 |
+| **IN** | Crypto Purchase | Purchase properties using ETH through MetaMask. | Delivered — Milestone 3 (validated on Sepolia) |
+| **IN** | Escrow Smart Contract | Hold buyer funds securely until the transaction is completed. | Delivered — Milestone 3, deployed on Sepolia |
+| **IN** | Escrow Settlement | Release funds to the seller or refund the buyer when appropriate. | Delivered — Milestone 3 (+ 30-day deadline reclaim) |
 | **IN** | Transaction History | Display purchase and sale history for each user. | Delivered — Milestone 4 |
 | **IN** | User Onboarding Guide | In-app guidance and written documentation for new users. | Delivered — Milestone 4 |
 | **OUT** | Fiat Payments | Credit card and bank transfer payments are not included in the MVP. | — |
@@ -27,7 +27,7 @@
 | **UNKNOWN** | KYC Requirement | Determine whether KYC will be required before publishing listings. | — |
 | **UNKNOWN** | Legal Regulations | Determine legal requirements depending on the operating country. | — |
 | **UNKNOWN** | Platform Fee | Decide whether the platform will charge a percentage per transaction. | — |
-| **UNKNOWN** | Escrow Dispute Resolution | Define whether arbitration or dispute resolution is required. | — |
+| **LATER** | Escrow Dispute Resolution | Arbitration (arbiter or multisig) for disputed deposits. | Decided: out of MVP scope. The MVP covers buyer confirmation, seller refund, and a 30-day deadline after which the buyer reclaims funds — see `docs/escrow.md`. |
 
 ---
 
@@ -41,5 +41,5 @@ The objective of the MVP is to provide the essential functionality required to l
 
 ---
 
-See `docs/statement_of_work.md` for the milestone-by-milestone delivery status, and
-`docs/ai_usage.md` for disclosure of AI-assisted work during this delivery.
+See [`docs/statement_of_work.md`](statement_of_work.md) for the milestone-by-milestone delivery
+status, and [`docs/IA_Doc.md`](IA_Doc.md) for disclosure of AI-assisted work.

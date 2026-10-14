@@ -15,8 +15,8 @@ export function Navbar() {
 
         <nav className="hidden items-center gap-6 text-sm md:flex">
           <Link href="/properties" className="text-slate-600 hover:text-slate-900">Explorar</Link>
-          <Link href="/properties" className="text-slate-600 hover:text-slate-900">Marketplace</Link>
           <Link href="/properties/new" className="text-slate-600 hover:text-slate-900">Publicar</Link>
+          <Link href="/escrow" className="text-slate-600 hover:text-slate-900">Mis transacciones</Link>
           <Link href="/about" className="text-slate-600 hover:text-slate-900">Nosotros</Link>
         </nav>
 

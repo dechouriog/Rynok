@@ -21,6 +21,17 @@ export function PropertyFilters() {
   const [q, setQ] = useState(searchParams.get('q') ?? '');
   const [location, setLocation] = useState(searchParams.get('location') ?? '');
 
+  // Los selects se derivan de la URL para reflejar el filtro activo al recargar o navegar.
+  const priceIndex = Math.max(
+    0,
+    PRICE_RANGES.findIndex(
+      (range) =>
+        range.min === (searchParams.get('minPrice') ?? '') &&
+        range.max === (searchParams.get('maxPrice') ?? ''),
+    ),
+  );
+  const sort = searchParams.get('sort') ?? 'recent';
+
   function pushParams(next: Record<string, string>) {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(next).forEach(([key, value]) => {
@@ -59,7 +70,8 @@ export function PropertyFilters() {
         className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
       />
       <select
-        defaultValue={0}
+        aria-label="Rango de precio"
+        value={priceIndex}
         onChange={handlePriceChange}
         className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600"
       >
@@ -68,7 +80,8 @@ export function PropertyFilters() {
         ))}
       </select>
       <select
-        defaultValue={searchParams.get('sort') ?? 'recent'}
+        aria-label="Ordenar"
+        value={sort}
         onChange={handleSortChange}
         className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600"
       >

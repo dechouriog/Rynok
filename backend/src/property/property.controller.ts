@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -47,7 +47,7 @@ export class PropertyController {
   @ApiParam({ name: 'id', description: 'UUID de la propiedad' })
   @ApiResponse({ status: 200, description: 'Detalle de la propiedad.' })
   @ApiNotFoundResponse({ description: 'No existe una propiedad con ese id.' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.findOne(id);
   }
 
@@ -59,7 +59,7 @@ export class PropertyController {
   @ApiForbiddenResponse({ description: 'El usuario autenticado no es el propietario.' })
   @ApiNotFoundResponse({ description: 'No existe una propiedad con ese id.' })
   @UseGuards(WalletAuthGuard)
-  update(@Param('id') id: string, @Body() dto: UpdatePropertyDto, @CurrentUser() user: { sub: string }) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdatePropertyDto, @CurrentUser() user: { sub: string }) {
     return this.service.update(id, dto, user.sub);
   }
 
@@ -71,7 +71,7 @@ export class PropertyController {
   @ApiForbiddenResponse({ description: 'El usuario autenticado no es el propietario.' })
   @ApiNotFoundResponse({ description: 'No existe una propiedad con ese id.' })
   @UseGuards(WalletAuthGuard)
-  remove(@Param('id') id: string, @CurrentUser() user: { sub: string }) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: { sub: string }) {
     return this.service.remove(id, user.sub);
   }
 }

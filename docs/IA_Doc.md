@@ -3,8 +3,8 @@
 ## Purpose
 
 This document discloses, transparently and specifically, where and how AI assistance
-(Claude, by Anthropic) was used during the development of Rynok's Entrega 1 (Milestones 1
-and 2). It is intended to accompany the Statement of Work and MVP Scope documents as
+(Claude, by Anthropic) was used during the development of Rynok: Entrega 1 (Milestones 1
+and 2) and Entrega 3 (Milestones 3–5 review, hardening, and deployment). It is intended to accompany the Statement of Work and MVP Scope documents as
 supporting evidence for the "Context Engineering" and "AI usage" evaluation criteria.
 
 The team's position is that AI was used as a **pair-programming and code-review tool**,
@@ -72,13 +72,75 @@ that does not exist yet, to avoid misrepresenting the project's real functional 
 
 ---
 
+## Entrega 3 — review, escrow hardening, and Sepolia deployment
+
+For Milestones 3–5, the team used **Claude Code** (an agent running in VS Code with
+access to the local repository and a terminal) to review, test, and run the
+application. Unlike the previous deliveries, the agent ran commands directly: it
+installed dependencies, ran the test suites, started the backend, frontend,
+PostgreSQL, and a local Hardhat node, and wrote throwaway scripts that drove the
+real API and contract.
+
+### 1. Review and bug fixes
+
+The agent ran each part of the application and attacked it with integration
+scripts. This found defects that the existing tests did not catch, and each was
+fixed and then reproduced as a test:
+
+- **Security**:
+  - `JWT_SECRET` was read before `.env` was loaded, so tokens were always signed with a default secret (confirmed by forging a token);
+  - the backend registered escrow deposits without checking the transaction, the buyer, the price, or the property status;
+  - the login message could be replayed (now uses single-use nonces).
+- **Escrow**:
+  - funds could get stuck: there was no UI to confirm delivery or refund, and the backend had no refund endpoint;
+  - a refunded property could never be sold again;
+  - a 1-wei deposit could block any property.
+- **Frontend**:
+  - a duplicated React installation broke 8 of 11 tests;
+  - switching MetaMask accounts or networks led to on-chain deposits that the backend could not register;
+  - error pages returned 500 instead of 404.
+- **Configuration**:
+  - a dependency that required `git` to install;
+  - `.env.local` was not in `.gitignore`;
+  - a port conflict on 5432;
+  - broken documentation links.
+
+### 2. Design decisions
+
+The team set the requirements for the escrow redesign:
+
+- keep publishing free of on-chain transactions;
+- add an "enable purchase" step with `list(propertyId, price)`;
+- add a minimal delivery deadline;
+- leave dispute resolution out of scope.
+
+The agent pointed out that keying listings by `propertyId` alone would move the
+squatting attack to `list`, and proposed keying them by `(propertyId, seller)`.
+The team accepted that change before it was implemented.
+
+### 3. Deployment and validation
+
+At the team's request, the agent deployed `Escrow` to Sepolia using the team's test
+wallet, configured in `contracts/.env`. The agent never displayed or stored the
+private key elsewhere. It then ran the full purchase and refund flows against the
+deployed contract, with the team's wallet as seller and a temporary wallet as
+buyer, and returned the remaining test ETH to the team's wallet.
+
+Verification was the same as in earlier deliveries, but done by the agent itself:
+`tsc --noEmit`, `vitest run`, `hardhat test`, `next build`, and the integration runs
+documented in [test_evidence.md](test_evidence.md).
+
+---
+
 ## What AI was *not* used for
 
 - AI did not make product or scope decisions. Scope (what is IN/OUT/LATER for the MVP,
   the milestone breakdown, and issue definitions) was defined by the team beforehand,
   in the Statement of Work and MVP Scope documents, before any AI-assisted coding began.
 - AI did not push code, open pull requests, or make commits on behalf of the team.
-  All commits were authored and pushed by Diego Chourio and Leidy Obando.
+  All commits were authored and pushed by Diego Chourio and Leidy Obando. The only
+  outward-facing action taken by AI was the Sepolia testnet deployment and test
+  transactions described above, done at the team's explicit request.
 - AI-suggested fixes were not accepted blindly: each was checked against the actual
   compiler, test runner, and build output before being considered resolved.
 
@@ -86,10 +148,13 @@ that does not exist yet, to avoid misrepresenting the project's real functional 
 
 ## Tooling
 
-- **Model**: Claude (Anthropic), used through a chat interface.
-- **Verification method**: a sandboxed copy of the repository was used to apply
-  candidate fixes, run `tsc --noEmit`, `vitest run`, and `next build`, and confirm the
-  result before handing the corrected files back to the team.
+- **Model**: Claude (Anthropic). Entregas 1–2: through a chat interface. Entrega 3:
+  through Claude Code, an agent with access to the local repository and terminal.
+- **Verification method**: Entregas 1–2 used a sandboxed copy of the repository to
+  apply candidate fixes, run `tsc --noEmit`, `vitest run`, and `next build`, and
+  confirm the result before handing the corrected files back to the team. In
+  Entrega 3 the agent ran the same checks, plus `hardhat test` and integration
+  runs on a local node and on Sepolia, directly in the team's working copy.
 
 ---
 

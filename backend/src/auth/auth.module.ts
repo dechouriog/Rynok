@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -11,9 +12,15 @@ import { WalletAuthGuard } from './wallet-auth.guard.js';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'dev-secret',
-      signOptions: { expiresIn: '7d' },
+    // registerAsync: el secreto se lee cuando ConfigModule ya cargó el .env.
+    // Con register() se evaluaba al importar el archivo y siempre caía en 'dev-secret'.
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET') || 'dev-secret',
+        signOptions: { expiresIn: '7d' },
+      }),
     }),
   ],
 

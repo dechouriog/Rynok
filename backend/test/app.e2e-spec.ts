@@ -3,10 +3,12 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from './../src/app.module.js';
 
-describe('AppController (e2e)', () => {
+// Levanta la aplicación completa contra el PostgreSQL de backend/.env
+// (docker compose up -d postgres). Sirve para validar configuración y conexión.
+describe('AppModule con PostgreSQL (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -15,14 +17,21 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  afterAll(async () => {
+    await app?.close();
+  });
+
+  it('GET / responde el health check', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect({ status: 'ok', service: 'rynok-api' });
   });
 
-  afterEach(async () => {
-    await app.close();
+  it('GET /properties lee de la base de datos', () => {
+    return request(app.getHttpServer())
+      .get('/properties')
+      .expect(200)
+      .expect((res) => expect(Array.isArray(res.body)).toBe(true));
   });
 });

@@ -66,7 +66,7 @@ used elsewhere in the app, avoiding a separate schema file and generated client
 step. The cost was a real one: TypeORM's decorator metadata combined with a
 circular `User`↔`Property` relation caused a `ReferenceError` under the
 backend's ESM module setup, which took real debugging effort to resolve (see
-`docs/ai_usage.md`). Prisma's generated client would likely have sidestepped
+[IA_Doc.md](IA_Doc.md)). Prisma's generated client would likely have sidestepped
 that specific issue, at the cost of an extra build step and a less direct
 mapping between entity classes and validation DTOs.
 
@@ -83,13 +83,20 @@ credential (a password) would be redundant and worse UX. Verifying a signed
 message (`ethers.verifyMessage`) against the claimed address is enough proof of
 identity without storing any secret server-side.
 
+To prevent replay attacks, the message to sign is not built by the client. The
+backend issues it (`POST /auth/nonce`) with a random nonce that expires after 5
+minutes and can be used only once, so a captured signature cannot be reused to
+log in again.
+
 **Trade-off accepted:** losing a wallet means losing the account — there's no
 password reset flow, and no email-based recovery. That's an accepted limitation
-for this MVP, not an oversight.
+for this MVP, not an oversight. Pending nonces are kept in memory, which is enough
+for a single backend instance; scaling horizontally would require moving them to
+the database or Redis.
 
 ---
 
-## Blockchain (planned, Milestone 3): Solidity + Hardhat + ethers.js + OpenZeppelin
+## Blockchain (Milestone 3): Solidity + Hardhat + ethers.js + OpenZeppelin
 
 **Alternatives considered:** Foundry instead of Hardhat, writing the escrow
 logic from scratch instead of extending OpenZeppelin.
@@ -104,7 +111,20 @@ larger than a single escrow contract.
 **Why OpenZeppelin over custom contracts:** reentrancy and access-control bugs
 in hand-rolled escrow logic are a well-known way for real money to get stuck or
 stolen. Building on audited, widely-used base contracts reduces that risk for
-a small team without a dedicated security audit budget.
+a small team without a dedicated security audit budget. In practice the contract
+uses OpenZeppelin's `ReentrancyGuard` on every function that sends ETH, and keeps
+the rest of the logic (listings, deals, delivery deadline) small enough to reach
+100% line coverage.
+
+**Why Sepolia:** it is the Ethereum testnet recommended for application testing,
+with free faucets and Etherscan support. This lets evaluators inspect the deployed
+contract and its transactions without anyone spending real ETH.
+
+**Trade-off accepted:** the contract cannot know who owns a property in the
+database. Instead of adding a trusted backend signer (an extra key to manage and
+protect), listings and deals are keyed by `(propertyId, seller)`. The backend then
+verifies each transaction's events against the owner it has on record. See
+[escrow.md](escrow.md) for the full reasoning.
 
 ---
 

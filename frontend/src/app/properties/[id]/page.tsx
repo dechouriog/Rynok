@@ -1,7 +1,8 @@
 import { ArrowLeft, MapPin, User } from 'lucide-react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { getProperty } from '@/lib/api';
+import { formatEth, getProperty, imageSrc, type Property } from '@/lib/api';
 import { PropertyOwnerActions } from '@/components/PropertyOwnerActions';
 import { BuyButton } from '@/components/BuyButton';
 
@@ -15,7 +16,12 @@ export default async function PropertyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const property = await getProperty(id);
+  let property: Property;
+  try {
+    property = await getProperty(id);
+  } catch {
+    notFound();
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -31,10 +37,7 @@ export default async function PropertyDetailPage({
         <div className="lg:col-span-2">
           <div className="aspect-[16/9] w-full overflow-hidden rounded-xl bg-slate-100">
             <img
-              src={
-                property.imageUrl ||
-                'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1000&q=60'
-              }
+              src={imageSrc(property.imageUrl)}
               alt={property.title}
               className="h-full w-full object-cover"
             />
@@ -69,7 +72,7 @@ export default async function PropertyDetailPage({
 
           <div className="mt-4">
             <div className="text-3xl font-bold text-slate-900">
-              {property.priceEth} ETH
+              {formatEth(property.priceEth)} ETH
             </div>
           </div>
 
@@ -82,11 +85,8 @@ export default async function PropertyDetailPage({
             propertyId={property.id}
             sellerWallet={property.owner.walletAddress}
             priceEth={property.priceEth}
+            status={property.status}
           />
-
-          <p className="mt-3 text-center text-xs text-slate-400">
-            El pago se mantiene en escrow hasta que se confirme la entrega.
-          </p>
 
           <PropertyOwnerActions property={property} />
         </aside>

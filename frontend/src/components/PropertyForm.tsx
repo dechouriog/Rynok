@@ -1,9 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ImagePlus, Wallet } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import { createProperty } from '@/lib/api';
 import { useWallet } from '@/context/WalletContext';
+import { ImageInput, resolveImageUrl, type ImageValue } from '@/components/ImageInput';
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500';
@@ -11,7 +12,8 @@ const inputClass =
 export function PropertyForm() {
   const router = useRouter();
   const { token, connect, isConnecting } = useWallet();
-  const [form, setForm] = useState({ title: '', description: '', location: '', priceEth: '', imageUrl: '' });
+  const [form, setForm] = useState({ title: '', description: '', location: '', priceEth: '' });
+  const [image, setImage] = useState<ImageValue>({ file: null, url: '' });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -24,10 +26,13 @@ export function PropertyForm() {
     }
     setSubmitting(true);
     try {
-      await createProperty(form, token);
+      // La imagen se sube recién al publicar: si el usuario cambia de idea antes,
+      // no quedan archivos huérfanos en el servidor.
+      const imageUrl = await resolveImageUrl(image, token);
+      await createProperty({ ...form, ...(imageUrl ? { imageUrl } : {}) }, token);
       router.push('/properties');
-    } catch {
-      setError('No se pudo publicar la propiedad. Intenta de nuevo.');
+    } catch (err: any) {
+      setError(err?.message ?? 'No se pudo publicar la propiedad. Intenta de nuevo.');
     } finally {
       setSubmitting(false);
     }
@@ -98,17 +103,7 @@ export function PropertyForm() {
         />
       </div>
 
-      <div>
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-          <ImagePlus className="h-4 w-4" /> URL de imagen (opcional)
-        </label>
-        <input
-          placeholder="https://..."
-          className={inputClass}
-          value={form.imageUrl}
-          onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-        />
-      </div>
+      <ImageInput value={image} onChange={setImage} />
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
@@ -117,7 +112,7 @@ export function PropertyForm() {
         disabled={submitting}
         className="w-full rounded-lg bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800"
       >
-        {submitting ? 'Publicando...' : 'Confirmar y publicar con mi wallet'}
+        {submitting ? 'Publicando...' : 'Confirmar y publicar'}
       </button>
     </form>
   );

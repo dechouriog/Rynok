@@ -293,16 +293,48 @@ implemented. Milestone 4 is complete: the transaction history view and the
 user onboarding guide are implemented, building on top of the `EscrowTransaction`
 entity delivered in Milestone 3.
 
+## Entrega 3 (delivered)
+
+Milestone 5 is complete, and Milestones 1–4 were hardened after a full review and
+end-to-end testing of the application:
+
+- **Escrow redesign** ([docs/escrow.md](escrow.md)):
+  - the seller enables the sale on-chain with `list(propertyId, price)`, and the contract requires that exact price;
+  - listings and deals are keyed by `(propertyId, seller)`, which neutralizes the 1-wei squatting attack;
+  - a 30-day delivery deadline lets the buyer reclaim funds (`claimRefund`).
+- **Backend security**:
+  - every escrow transaction reported by the frontend is verified on-chain;
+  - the login uses single-use nonces, so a captured signature cannot be replayed;
+  - `JWT_SECRET` is now actually read from `.env` (before this fix, the backend always signed tokens with a default secret);
+  - properties cannot be edited or deleted while funds are in escrow.
+- **Frontend**:
+  - the *Habilitar compra* button;
+  - confirm delivery, refund, and claim-after-deadline actions in `/escrow`;
+  - sign-out when the MetaMask account changes;
+  - a prompt to switch networks when MetaMask is not on Sepolia.
+- **Deployment**: `Escrow` deployed on Sepolia at
+  [`0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9`](https://sepolia.etherscan.io/address/0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9).
+  The full purchase and refund flows were validated against it.
+- **Property photos**: owners can upload their own images (JPG, PNG, WebP, or GIF,
+  up to 5 MB), which are validated by content on the backend.
+- **Testing**: 22 contract tests (100% coverage), 49 backend unit and 15 e2e tests,
+  72 frontend tests, plus integration runs on a local node and on Sepolia. See
+  [test_evidence.md](test_evidence.md).
+
 | Milestone | Status | Notes |
 | --- | --- | --- |
-| M1 — Foundation & Authentication | Delivered | Wallet-based authentication (signature verification), JWT session, wallet connect/disconnect UI. |
-| M2 — Property Marketplace | Delivered | CRUD, search/filter, ownership-based edit/delete, dashboard with real user data. |
-| M3 — Blockchain & Escrow | Delivered | `Escrow.sol` (deposit/confirmDelivery/refund), contract tests, backend `EscrowTransaction`, real MetaMask purchase flow. |
-| M4 — Transactions & Documentation | Delivered | Transaction history (`/escrow`), dashboard recent activity, onboarding modal, and user guide. |
-| M5 — Testing & Finalization | Partial | Unit and integration testing exist for M1–M4; final end-to-end validation on a live testnet and production deployment still pending. |
+| M1 — Foundation & Authentication | Delivered | Wallet-signature authentication with single-use nonces, JWT session, wallet connect/disconnect UI. |
+| M2 — Property Marketplace | Delivered | CRUD, search/filter, ownership-based edit/delete (blocked while in escrow), dashboard with real user data. |
+| M3 — Blockchain & Escrow | Delivered | `Escrow.sol` (list/deposit/confirmDelivery/refund/claimRefund), backend on-chain verification, real MetaMask purchase flow. |
+| M4 — Transactions & Documentation | Delivered | Transaction history with confirm/refund/claim actions (`/escrow`), dashboard recent activity, onboarding modal, user guide. |
+| M5 — Testing & Finalization | Delivered | Contract deployed on Sepolia; end-to-end flow validated on-chain; test evidence documented. |
 
-AI-assisted development (delivery planning, bug fixing, and frontend implementation)
-was used during this delivery. See `docs/ai_usage.md` for full disclosure.
+**Out of scope, documented as future work:** an escrow dispute-resolution system
+(arbiter/multisig). See [docs/escrow.md](escrow.md#trabajo-futuro).
+
+AI-assisted development (delivery planning, review, bug fixing, testing, and frontend
+implementation) was used during these deliveries. See [docs/IA_Doc.md](IA_Doc.md)
+for full disclosure.
 
 ---
 

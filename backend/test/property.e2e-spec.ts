@@ -6,6 +6,7 @@ import request from 'supertest';
 import { Wallet } from 'ethers';
 import { AuthModule } from '../src/auth/auth.module.js';
 import { PropertyModule } from '../src/property/property.module.js';
+import { login } from './login.js';
 
 describe('PropertyController (e2e)', () => {
   let app: INestApplication;
@@ -24,11 +25,7 @@ describe('PropertyController (e2e)', () => {
     await app.init();
 
     const wallet = Wallet.createRandom();
-    const message = 'login';
-    const signature = await wallet.signMessage(message);
-    const res = await request(app.getHttpServer())
-      .post('/auth/connect')
-      .send({ walletAddress: wallet.address, signature, message });
+    const res = await login(app, wallet);
     token = res.body.accessToken;
   });
 

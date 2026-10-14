@@ -32,6 +32,9 @@ export class EscrowTransaction {
   @Column({ nullable: true })
   releaseTxHash?: string;
 
+  @Column({ nullable: true })
+  refundTxHash?: string;
+
   @Column({ type: 'simple-enum', enum: EscrowStatus, default: EscrowStatus.AWAITING_DELIVERY })
   status: EscrowStatus;
 

@@ -2,5 +2,10 @@ node_modules/
 dist/
 .next/
 .env
+.env.local
+.env*.local
 *.log
 coverage/
+*.tsbuildinfo
+# Imágenes subidas por los usuarios
+backend/uploads/

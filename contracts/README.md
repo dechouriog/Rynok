@@ -1,57 +1,47 @@
-# Sample Hardhat 3 Project (`mocha` and `ethers`)
+# Rynok — Escrow contract
 
-This project showcases a Hardhat 3 project using `mocha` for tests and the `ethers` library for Ethereum interactions.
+Hardhat 3 project (Mocha + ethers) with the `Escrow` contract that holds ETH for Rynok purchases.
+Design, security model, and limitations: [../docs/escrow.md](../docs/escrow.md).
 
-To learn more about Hardhat 3, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3](https://hardhat.org/hardhat3-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+| Network | Address |
+| --- | --- |
+| Sepolia (chainId 11155111) | [`0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9`](https://sepolia.etherscan.io/address/0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9) |
 
-## Project Overview
+## Functions
 
-This example project includes:
+| Function | Caller | Effect |
+| --- | --- | --- |
+| `list(propertyId, price)` | Seller | Enables the sale at an exact price (in wei). It can be updated while there is no pending deposit. |
+| `deposit(propertyId, seller)` | Buyer | Deposits exactly the listed price. |
+| `confirmDelivery(propertyId, seller)` | Buyer | Releases the funds to the seller. |
+| `refund(propertyId, seller)` | Seller | Returns the funds to the buyer; the property can be bought again. |
+| `claimRefund(propertyId, seller)` | Buyer | After `DELIVERY_PERIOD` (30 days), the buyer reclaims the funds. |
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using `mocha` and ethers.js
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+`propertyId` is `uint256(keccak256(<property UUID>))`.
 
 ## Usage
 
-### Running Tests
-
-To run all the tests in the project, execute the following command:
-
-```shell
-npx hardhat test
+```bash
+npm install
+npx hardhat test              # 22 tests
+npx hardhat test --coverage   # 100% line coverage
 ```
 
-You can also selectively run the Solidity or `mocha` tests:
+### Local deployment
 
-```shell
-npx hardhat test solidity
-npx hardhat test mocha
+```bash
+npx hardhat node                                      # terminal 1
+npx hardhat run scripts/deploy.ts --network localhost # terminal 2
 ```
 
-### Make a deployment to Sepolia
+Use `NEXT_PUBLIC_CHAIN_ID=31337` in `frontend/.env.local` and `ESCROW_RPC_URL=http://127.0.0.1:8545` in `backend/.env`.
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+### Sepolia deployment
 
-To run the deployment to a local chain:
-
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+```bash
+cp .env.example .env   # SEPOLIA_RPC_URL and PRIVATE_KEY (TEST wallet only, with Sepolia ETH)
+npm run deploy:sepolia
 ```
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
-
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-```
-
-After setting the variable, you can run the deployment with the Sepolia network:
-
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+The script prints the address and the lines to copy into `frontend/.env.local` and `backend/.env`.
+`.env` is git-ignored: never commit a private key.

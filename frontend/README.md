@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rynok — Frontend
 
-## Getting Started
+Next.js (App Router) + TypeScript + Tailwind CSS. Talks to the backend REST API and to the escrow contract through MetaMask (`ethers` v6).
 
-First, run the development server:
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.local.example .env.local
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Variable | Description |
+| --- | --- |
+| `NEXT_PUBLIC_API_URL` | Backend URL (default `http://localhost:3001`) |
+| `NEXT_PUBLIC_ESCROW_ADDRESS` | Escrow contract address |
+| `NEXT_PUBLIC_CHAIN_ID` | `11155111` (Sepolia) or `31337` (local Hardhat node) |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/lib/api.ts`: backend client.
+- `src/lib/blockchain.ts`: escrow contract calls. Before signing, it checks the network and asks MetaMask to switch if needed.
+- `src/context/WalletContext.tsx`: MetaMask session. It signs the nonce issued by the backend, and signs out if the MetaMask account changes.
+- `src/components/BuyButton.tsx`: shown only when the seller has enabled the purchase on-chain at the published price.
+- `src/components/PropertyOwnerActions.tsx`: *Habilitar compra* / *Actualizar precio on-chain*, edit, delete.
+- `src/components/ImageInput.tsx`: photo picker with preview, used when publishing and editing. The file is uploaded only when the form is submitted, so no orphan files are left if the user changes their mind.
+- `src/components/TransactionRow.tsx`: confirm delivery, refund, and claim after the 30-day deadline.
 
-## Learn More
+## Tests
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run test       # 72 tests
+npm run test:cov   # coverage (~89% lines)
+```

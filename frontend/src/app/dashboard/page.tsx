@@ -8,6 +8,7 @@ import { DashboardSidebar } from '@/components/DashboardSidebar';
 import { TransactionRow } from '@/components/TransactionRow';
 import { useWallet } from '@/context/WalletContext';
 import {
+  formatEth,
   getMyTransactions,
   getProperties,
   type EscrowTransaction,
@@ -37,11 +38,12 @@ export default function DashboardPage() {
           all.filter((p) => p.owner.id === profile.id),
         ),
       )
+      .catch(() => setMyProperties([]))
       .finally(() => setLoading(false));
 
-    getMyTransactions(token).then((tx) =>
-      setRecentTx(tx.slice(0, 3)),
-    );
+    getMyTransactions(token)
+      .then((tx) => setRecentTx(tx.slice(0, 3)))
+      .catch(() => setRecentTx([]));
   }, [profile, token]);
 
   if (!address) {
@@ -146,7 +148,7 @@ export default function DashboardPage() {
                       </td>
 
                       <td className="py-2">
-                        {p.priceEth} ETH
+                        {formatEth(p.priceEth)} ETH
                       </td>
                     </tr>
                   ))}

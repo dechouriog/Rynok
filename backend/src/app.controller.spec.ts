@@ -14,9 +14,7 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
-    });
+  it('responde el health check', () => {
+    expect(appController.getHealth()).toEqual({ status: 'ok', service: 'rynok-api' });
   });
 });

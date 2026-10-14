@@ -10,7 +10,7 @@ async function seed() {
   const auth = app.get(AuthService);
 
   const wallet = Wallet.createRandom();
-  const message = 'seed';
+  const { message } = auth.createLoginMessage(wallet.address);
   const signature = await wallet.signMessage(message);
   const { user } = await auth.connectWallet({ walletAddress: wallet.address, signature, message });
 

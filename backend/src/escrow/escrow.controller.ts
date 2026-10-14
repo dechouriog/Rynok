@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import {
 import { EscrowService } from './escrow.service.js';
 
 import { RecordDepositDto } from './dto/record-deposit.dto.js';
+import { ConfirmReleaseDto, RefundDto } from './dto/close-escrow.dto.js';
 
 import { WalletAuthGuard } from '../auth/wallet-auth.guard.js';
 
@@ -29,11 +31,14 @@ export class EscrowController {
   @Post('deposit')
   @ApiBearerAuth('access-token')
   @ApiOperation({
-    summary: 'Registrar un depósito ya confirmado on-chain',
+    summary: 'Registrar un depósito ya confirmado on-chain (el comprador es el usuario autenticado)',
   })
   @UseGuards(WalletAuthGuard)
-  recordDeposit(@Body() dto: RecordDepositDto) {
-    return this.service.recordDeposit(dto);
+  recordDeposit(
+    @Body() dto: RecordDepositDto,
+    @CurrentUser() user: { wallet: string },
+  ) {
+    return this.service.recordDeposit(dto, user.wallet);
   }
 
   @Get('my-transactions')
@@ -51,7 +56,7 @@ export class EscrowController {
   @ApiOperation({
     summary: 'Ver el estado de escrow de una propiedad',
   })
-  findByProperty(@Param('propertyId') propertyId: string) {
+  findByProperty(@Param('propertyId', ParseUUIDPipe) propertyId: string) {
     return this.service.findByProperty(propertyId);
   }
 
@@ -63,14 +68,33 @@ export class EscrowController {
   })
   @UseGuards(WalletAuthGuard)
   confirm(
-    @Param('propertyId') propertyId: string,
-    @Body('releaseTxHash') releaseTxHash: string,
+    @Param('propertyId', ParseUUIDPipe) propertyId: string,
+    @Body() dto: ConfirmReleaseDto,
     @CurrentUser() user: { wallet: string },
   ) {
     return this.service.confirmRelease(
       propertyId,
       user.wallet,
-      releaseTxHash,
+      dto.releaseTxHash,
+    );
+  }
+
+  @Post(':propertyId/refund')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary:
+      'Registrar un reembolso (el vendedor, o el comprador cuando venció el plazo de entrega)',
+  })
+  @UseGuards(WalletAuthGuard)
+  refund(
+    @Param('propertyId', ParseUUIDPipe) propertyId: string,
+    @Body() dto: RefundDto,
+    @CurrentUser() user: { wallet: string },
+  ) {
+    return this.service.refund(
+      propertyId,
+      user.wallet,
+      dto.refundTxHash,
     );
   }
 }

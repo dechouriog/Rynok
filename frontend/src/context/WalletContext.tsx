@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { BrowserProvider } from 'ethers';
-import { connectWallet, getMe } from '@/lib/api';
+import { connectWallet, getMe, requestLoginMessage } from '@/lib/api';
 
 type WalletState = {
   address: string | null;
@@ -31,6 +31,22 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setToken(savedToken);
       setAddress(savedAddress);
     }
+
+    // La sesión pertenece a una cuenta concreta: si MetaMask firma con otra,
+    // las transacciones on-chain no coincidirían con el usuario del backend.
+    const ethereum = (window as any).ethereum;
+    if (!ethereum?.on) return;
+
+    function handleAccountsChanged(accounts: string[]) {
+      const current = sessionStorage.getItem('rynok_address');
+      if (current && accounts[0]?.toLowerCase() !== current.toLowerCase()) {
+        disconnect();
+      }
+    }
+
+    ethereum.request?.({ method: 'eth_accounts' }).then(handleAccountsChanged).catch(() => {});
+    ethereum.on('accountsChanged', handleAccountsChanged);
+    return () => ethereum.removeListener?.('accountsChanged', handleAccountsChanged);
   }, []);
 
   useEffect(() => {
@@ -56,7 +72,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const walletAddress = accounts[0];
 
       const signer = await provider.getSigner();
-      const message = `Iniciar sesión en Rynok - ${Date.now()}`;
+      const message = await requestLoginMessage(walletAddress);
       const signature = await signer.signMessage(message);
 
       const { accessToken } = await connectWallet(

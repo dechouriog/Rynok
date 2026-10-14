@@ -18,6 +18,7 @@ export default function EscrowPage() {
     [],
   );
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -27,8 +28,15 @@ export default function EscrowPage() {
 
     getMyTransactions(token)
       .then(setTransactions)
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [token]);
+
+  function replaceTransaction(updated: EscrowTransaction) {
+    setTransactions((prev) =>
+      prev.map((tx) => (tx.id === updated.id ? updated : tx)),
+    );
+  }
 
   if (!address) {
     return (
@@ -65,6 +73,8 @@ export default function EscrowPage() {
           <p className="mt-8 text-sm text-slate-400">
             Cargando...
           </p>
+        ) : error ? (
+          <p className="mt-8 text-sm text-red-500">{error}</p>
         ) : transactions.length === 0 ? (
           <div className="mt-10 flex flex-col items-center rounded-xl border border-dashed border-slate-300 py-16 text-center">
             <ReceiptText className="mb-3 h-8 w-8 text-slate-300" />
@@ -85,6 +95,8 @@ export default function EscrowPage() {
                 key={tx.id}
                 tx={tx}
                 myWallet={address}
+                token={token}
+                onUpdated={replaceTransaction}
               />
             ))}
           </div>

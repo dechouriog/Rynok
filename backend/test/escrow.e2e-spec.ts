@@ -7,6 +7,7 @@ import { Wallet, type HDNodeWallet } from 'ethers';
 import { AuthModule } from '../src/auth/auth.module.js';
 import { PropertyModule } from '../src/property/property.module.js';
 import { EscrowModule } from '../src/escrow/escrow.module.js';
+import { login } from './login.js';
 
 describe('Escrow — historial (e2e)', () => {
   let app: INestApplication;
@@ -27,11 +28,7 @@ describe('Escrow — historial (e2e)', () => {
     await app.init();
 
     wallet = Wallet.createRandom();
-    const message = 'login';
-    const signature = await wallet.signMessage(message);
-    const res = await request(app.getHttpServer())
-      .post('/auth/connect')
-      .send({ walletAddress: wallet.address, signature, message });
+    const res = await login(app, wallet);
     token = res.body.accessToken;
   });
 
