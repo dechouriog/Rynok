@@ -94,32 +94,33 @@ cd backend && npm run build && node dist/seed.js
 
 ## Deployment
 
-The contract is already on Sepolia. The recommended setup for the app is **Vercel** (frontend) and **Railway** (backend + PostgreSQL + a volume for uploaded photos). Other providers work the same way with the variables below.
+The contract is already on Sepolia. The app is deployed with **Render** (backend + PostgreSQL, free plan) and **Vercel** (frontend).
 
-**Backend (Railway)**
+**Backend and database (Render)**
 
-1. Create a project from this repository, with *Root Directory* `backend`.
-   - Build command: `npm run build`
-   - Start command: `npm run start:prod`
-2. Add a PostgreSQL service and reference its `DATABASE_URL` from the backend service.
-3. Add a volume, mounted for example at `/data/uploads`, and set `UPLOAD_DIR=/data/uploads`. Without a persistent volume, uploaded photos are lost on every redeploy.
-4. Set the remaining variables:
-   - `JWT_SECRET` (long and random);
-   - `ESCROW_RPC_URL` (Sepolia RPC);
-   - `ESCROW_CONTRACT_ADDRESS`;
-   - `DB_SSL=true` only if the database provider requires SSL (for example Neon or Supabase).
+The repository includes a [`render.yaml`](render.yaml) Blueprint that creates both services with their variables wired together:
+
+1. In Render, choose **New → Blueprint** and select this repository.
+2. When asked, enter `ESCROW_RPC_URL` (a Sepolia RPC URL, e.g. from Alchemy). `DATABASE_URL` and `JWT_SECRET` are set automatically.
+3. Wait for the deploy and copy the backend URL (e.g. `https://rynok-api.onrender.com`). Opening it should return `{"status":"ok","service":"rynok-api"}`.
+
+Free-plan limitations:
+
+- The backend sleeps after 15 minutes without traffic and takes about a minute to wake up. Open the backend URL before a demo.
+- Uploaded photos are lost on every redeploy or restart, because the free plan has no persistent disk. A paid disk (`UPLOAD_DIR` pointing to it) or Railway with a volume fixes this.
+- The free database expires after 30 days.
 
 **Frontend (Vercel)**
 
 1. Import the repository with *Root Directory* `frontend`.
 2. Set:
-   - `NEXT_PUBLIC_API_URL` (the public backend URL);
-   - `NEXT_PUBLIC_ESCROW_ADDRESS`;
+   - `NEXT_PUBLIC_API_URL` (the backend URL from Render, without a trailing slash);
+   - `NEXT_PUBLIC_ESCROW_ADDRESS=0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9`;
    - `NEXT_PUBLIC_CHAIN_ID=11155111`.
 
    `NEXT_PUBLIC_*` variables are embedded at build time, so redeploy the frontend after changing them.
 
-> Pending login nonces are kept in memory, so the backend should run as a single instance (the default on Railway). Tables are created automatically (`synchronize: true`), which is fine for this academic deployment; a production system would use migrations.
+> Pending login nonces are kept in memory, so the backend must run as a single instance. Tables are created automatically (`synchronize: true`), which is fine for this academic deployment; a production system would use migrations. Other hosts work the same way: the backend reads `DATABASE_URL` (plus `DB_SSL=true` if the provider requires SSL) and `UPLOAD_DIR`.
 
 ## Testing
 

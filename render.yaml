@@ -1,0 +1,36 @@
+# Blueprint de Render: backend (NestJS) + PostgreSQL en el plan gratuito.
+# Render > New > Blueprint > este repositorio. El frontend va en Vercel.
+#
+# Limitaciones del plan gratuito:
+# - el backend se duerme tras 15 min sin uso y tarda ~1 min en despertar;
+# - el disco no es persistente: las fotos subidas se pierden al redesplegar o reiniciar;
+# - la base de datos gratuita caduca a los 30 días.
+services:
+  - type: web
+    name: rynok-api
+    runtime: node
+    plan: free
+    # Se construye desde la raíz para usar el package-lock.json del monorepo.
+    buildCommand: npm ci --workspace=backend --no-audit --no-fund && npm run build --workspace=backend
+    startCommand: npm run start:prod --workspace=backend
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rynok-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ESCROW_CONTRACT_ADDRESS
+        value: "0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9"
+      # Se pide al crear el Blueprint: URL de Sepolia de Alchemy/Infura (no se versiona).
+      - key: ESCROW_RPC_URL
+        sync: false
+
+databases:
+  - name: rynok-db
+    plan: free
+    databaseName: rynok
+    user: rynok
