@@ -49,6 +49,28 @@ jobs:
   backend:
     name: Backend (unitarias + e2e)
     runs-on: ubuntu-latest
+    # test/app.e2e-spec.ts levanta la app completa contra un PostgreSQL real.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: rynok
+          POSTGRES_PASSWORD: rynok
+          POSTGRES_DB: rynok
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rynok"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: rynok
+      DB_PASSWORD: rynok
+      DB_NAME: rynok
+      JWT_SECRET: ci-secret-solo-para-pruebas
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
