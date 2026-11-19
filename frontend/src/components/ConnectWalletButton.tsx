@@ -6,8 +6,25 @@ import { CHAIN } from '@/lib/blockchain';
 import { shortenAddress } from '@/lib/format';
 import { Button, buttonClasses } from '@/components/ui';
 
+/**
+ * Texto corto en móvil y completo desde `sm`. El nombre accesible (aria-label) siempre es el completo.
+ * Evita que la barra superior desborde a 360 px con fuentes más anchas (p. ej. las de Linux).
+ */
+function Responsive({ short, full }: { short: string; full: string }) {
+  return (
+    <>
+      <span className="sm:hidden" aria-hidden>
+        {short}
+      </span>
+      <span className="hidden sm:inline" aria-hidden>
+        {full}
+      </span>
+    </>
+  );
+}
+
 /** Botón de la barra superior: refleja si hay MetaMask, la red y la sesión. */
-export function ConnectWalletButton({ compact = false }: { compact?: boolean }) {
+export function ConnectWalletButton() {
   const { address, connect, isConnecting, hasProvider, isWrongNetwork, switchNetwork } = useWallet();
 
   if (!hasProvider) {
@@ -16,19 +33,26 @@ export function ConnectWalletButton({ compact = false }: { compact?: boolean }) 
         href="https://metamask.io/download/"
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="Instalar MetaMask"
         className={buttonClasses('outline', 'sm')}
       >
         <ExternalLink className="h-4 w-4" aria-hidden />
-        {compact ? 'MetaMask' : 'Instalar MetaMask'}
+        <Responsive short="MetaMask" full="Instalar MetaMask" />
       </a>
     );
   }
 
   if (address && isWrongNetwork) {
     return (
-      <Button variant="outline" size="sm" onClick={switchNetwork} className="border-warning-600/40 text-warning-700">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={switchNetwork}
+        aria-label={`Cambiar a ${CHAIN.name}`}
+        className="border-warning-600/40 text-warning-700"
+      >
         <AlertTriangle className="h-4 w-4" aria-hidden />
-        {compact ? CHAIN.name : `Cambiar a ${CHAIN.name}`}
+        <Responsive short={CHAIN.name} full={`Cambiar a ${CHAIN.name}`} />
       </Button>
     );
   }
@@ -52,9 +76,10 @@ export function ConnectWalletButton({ compact = false }: { compact?: boolean }) 
       onClick={() => void connect()}
       loading={isConnecting}
       loadingText="Conectando…"
+      aria-label={isConnecting ? 'Conectando…' : 'Conectar wallet'}
       icon={<Wallet className="h-4 w-4" aria-hidden />}
     >
-      Conectar wallet
+      <Responsive short="Conectar" full="Conectar wallet" />
     </Button>
   );
 }

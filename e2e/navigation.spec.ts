@@ -33,7 +33,12 @@ test.describe('Navegación y estados de la wallet', () => {
     await page.goto('/properties/no-existe');
     await expect(page.getByRole('heading', { name: 'No encontramos esta página' })).toBeVisible();
 
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-    expect(overflow).toBe(false);
+    // Sin scroll horizontal a 360 px, incluso con fuentes anchas (Verdana en Windows, DejaVu Sans en Linux/CI).
+    for (const path of ['/', '/properties', '/properties/no-existe', '/dashboard']) {
+      await page.goto(path);
+      await page.addStyleTag({ content: "*{font-family:Verdana,'DejaVu Sans',sans-serif !important}" });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+      expect(overflow, `scroll horizontal en ${path}`).toBe(false);
+    }
   });
 });
