@@ -1,43 +1,76 @@
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { SearchX } from 'lucide-react';
 import { getProperties } from '@/lib/api';
+import { parseFilters, type SearchParams } from '@/lib/filters';
 import { PropertyCard } from '@/components/PropertyCard';
 import { PropertyFilters } from '@/components/PropertyFilters';
+import { Pagination } from '@/components/Pagination';
+import { PageHeader } from '@/components/PageHeader';
+import { ButtonLink, EmptyState } from '@/components/ui';
 
-type SearchParams = {
-  q?: string;
-  location?: string;
-  minPrice?: string;
-  maxPrice?: string;
-  sort?: 'recent' | 'price_asc' | 'price_desc';
+export const metadata: Metadata = {
+  title: 'Explorar propiedades',
+  description: 'Busca propiedades por ciudad y precio en ETH. Compra con el pago protegido por escrow.',
 };
 
-export default async function PropertiesPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const filters = await searchParams;
-  const properties = await getProperties(filters);
+const PAGE_SIZE = 9;
 
-  const sorted = [...properties].sort((a, b) => {
-    if (filters.sort === 'price_asc') return Number(a.priceEth) - Number(b.priceEth);
-    if (filters.sort === 'price_desc') return Number(b.priceEth) - Number(a.priceEth);
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
+export default async function PropertiesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const filters = parseFilters(await searchParams);
+  const result = await getProperties({ ...filters, limit: PAGE_SIZE });
+  const { page, ...linkParams } = filters;
+  const hasFilters = Boolean(filters.q || filters.location || filters.minPrice || filters.maxPrice);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-bold text-slate-900">Explorar propiedades</h1>
-      <p className="mt-1 text-slate-500">Filtra por ubicación, precio en ETH y ordena por lo que más te importe.</p>
+      <PageHeader
+        title="Explorar propiedades"
+        description="Filtra por ciudad y precio en ETH, y ordena por lo que más te importe."
+      />
 
-      <PropertyFilters />
+      <Suspense>
+        <PropertyFilters />
+      </Suspense>
 
-      {sorted.length === 0 ? (
-        <p className="mt-8 text-slate-500">No se encontraron propiedades.</p>
+      <p className="mt-6 text-sm text-ink-muted" aria-live="polite">
+        {result.total === 1 ? '1 propiedad' : `${result.total} propiedades`}
+        {result.totalPages > 1 && ` · página ${result.page} de ${result.totalPages}`}
+      </p>
+
+      {result.items.length === 0 ? (
+        <EmptyState
+          className="mt-4"
+          icon={<SearchX />}
+          title={hasFilters ? 'No hay propiedades con esos filtros' : 'Aún no hay propiedades publicadas'}
+          description={
+            hasFilters
+              ? 'Prueba con otra ciudad o un rango de precio más amplio.'
+              : 'Sé la primera persona en publicar.'
+          }
+          action={
+            hasFilters ? (
+              <ButtonLink href="/properties" variant="outline">
+                Ver todas
+              </ButtonLink>
+            ) : (
+              <ButtonLink href="/properties/new">Publicar propiedad</ButtonLink>
+            )
+          }
+        />
       ) : (
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {sorted.map((p) => <PropertyCard key={p.id} property={p} />)}
+        <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {result.items.map((p, i) => (
+            <PropertyCard key={p.id} property={p} priority={i < 3} />
+          ))}
         </div>
       )}
+
+      <Pagination
+        page={page}
+        totalPages={result.totalPages}
+        params={linkParams as Record<string, string | undefined>}
+      />
     </div>
   );
 }

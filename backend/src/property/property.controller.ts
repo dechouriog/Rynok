@@ -33,13 +33,27 @@ export class PropertyController {
 
   @Get()
   @ApiOperation({
-    summary: 'Listar o buscar propiedades',
-    description: 'Sin filtros devuelve todas las propiedades. Con `q`, `location`, `minPrice` y/o `maxPrice` aplica búsqueda.',
+    summary: 'Listar o buscar propiedades (paginado)',
+    description:
+      'Filtros opcionales: `q` (título o ubicación), `location`, `minPrice`, `maxPrice`, `status`. ' +
+      'Orden con `sort` (recent, price_asc, price_desc) y paginación con `page` y `limit` (máx. 50).',
   })
-  @ApiResponse({ status: 200, description: 'Lista de propiedades.' })
+  @ApiResponse({
+    status: 200,
+    description: '{ items, total, page, limit, totalPages }',
+    schema: { example: { items: [], total: 0, page: 1, limit: 12, totalPages: 1 } },
+  })
   findAll(@Query() filters: SearchPropertyDto) {
-    const hasFilters = Object.values(filters).some(Boolean);
-    return hasFilters ? this.service.search(filters) : this.service.findAll();
+    return this.service.search(filters);
+  }
+
+  @Get('mine')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Propiedades publicadas por la wallet autenticada' })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido.' })
+  @UseGuards(WalletAuthGuard)
+  findMine(@CurrentUser() user: { sub: string }) {
+    return this.service.findByOwner(user.sub);
   }
 
   @Get(':id')

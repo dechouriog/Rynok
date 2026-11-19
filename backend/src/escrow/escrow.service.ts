@@ -10,18 +10,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { parseEther } from 'ethers';
 
-import {
-  EscrowStatus,
-  EscrowTransaction,
-} from './entities/escrow-transaction.entity.js';
+import { EscrowStatus, EscrowTransaction } from './entities/escrow-transaction.entity.js';
 
 import { RecordDepositDto } from './dto/record-deposit.dto.js';
 import { DELIVERY_PERIOD_MS, EscrowChainVerifier } from './escrow-chain.verifier.js';
 
-import {
-  Property,
-  PropertyStatus,
-} from '../property/entities/property.entity.js';
+import { Property, PropertyStatus } from '../property/entities/property.entity.js';
 
 function toWei(amountEth: string) {
   try {
@@ -44,6 +38,11 @@ export class EscrowService {
   ) {}
 
   async recordDeposit(dto: RecordDepositDto, requesterWallet: string) {
+    const depositTxHash = dto.depositTxHash.toLowerCase();
+    if (await this.repo.existsBy({ depositTxHash })) {
+      throw new ConflictException('Este depósito ya fue registrado');
+    }
+
     const property = await this.properties.findOneBy({ id: dto.propertyId });
 
     if (!property) {
@@ -67,7 +66,7 @@ export class EscrowService {
       throw new BadRequestException('El monto depositado no coincide con el precio de la propiedad');
     }
 
-    await this.chain.assertEvent(dto.depositTxHash, dto.contractAddress, 'Deposited', property.id, {
+    await this.chain.assertEvent(depositTxHash, dto.contractAddress, 'Deposited', property.id, {
       buyer: buyerWallet,
       seller: sellerWallet,
       amount: amountWei,
@@ -80,7 +79,7 @@ export class EscrowService {
         sellerWallet,
         amountEth: dto.amountEth,
         contractAddress: dto.contractAddress.toLowerCase(),
-        depositTxHash: dto.depositTxHash,
+        depositTxHash,
         status: EscrowStatus.AWAITING_DELIVERY,
       }),
     );
@@ -89,7 +88,7 @@ export class EscrowService {
       status: PropertyStatus.IN_ESCROW,
     });
 
-    return saved;
+    return (await this.repo.findOneBy({ id: saved.id })) ?? saved;
   }
 
   async findByProperty(propertyId: string) {
@@ -102,10 +101,7 @@ export class EscrowService {
   findForUser(wallet: string) {
     const normalized = wallet.toLowerCase();
     return this.repo.find({
-      where: [
-        { buyerWallet: normalized },
-        { sellerWallet: normalized },
-      ],
+      where: [{ buyerWallet: normalized }, { sellerWallet: normalized }],
       order: { createdAt: 'DESC' },
     });
   }
@@ -115,9 +111,7 @@ export class EscrowService {
     const record = await this.findByProperty(propertyId);
 
     if (!record) {
-      throw new NotFoundException(
-        'No hay un depósito registrado para esta propiedad',
-      );
+      throw new NotFoundException('No hay un depósito registrado para esta propiedad');
     }
 
     if (record.status !== EscrowStatus.AWAITING_DELIVERY) {
@@ -127,20 +121,11 @@ export class EscrowService {
     return record;
   }
 
-  async confirmRelease(
-    propertyId: string,
-    requesterWallet: string,
-    releaseTxHash: string,
-  ) {
+  async confirmRelease(propertyId: string, requesterWallet: string, releaseTxHash: string) {
     const record = await this.findPending(propertyId);
 
-    if (
-      record.buyerWallet.toLowerCase() !==
-      requesterWallet.toLowerCase()
-    ) {
-      throw new ForbiddenException(
-        'Solo el comprador puede confirmar la liberación',
-      );
+    if (record.buyerWallet.toLowerCase() !== requesterWallet.toLowerCase()) {
+      throw new ForbiddenException('Solo el comprador puede confirmar la liberación');
     }
 
     await this.chain.assertEvent(releaseTxHash, record.contractAddress, 'Released', propertyId, {
@@ -157,11 +142,7 @@ export class EscrowService {
     return this.repo.save(record);
   }
 
-  async refund(
-    propertyId: string,
-    requesterWallet: string,
-    refundTxHash: string,
-  ) {
+  async refund(propertyId: string, requesterWallet: string, refundTxHash: string) {
     const record = await this.findPending(propertyId);
     const requester = requesterWallet.toLowerCase();
 

@@ -132,7 +132,7 @@ documented in [test_evidence.md](test_evidence.md).
 
 ---
 
-## What AI was *not* used for
+## What AI was _not_ used for
 
 - AI did not make product or scope decisions. Scope (what is IN/OUT/LATER for the MVP,
   the milestone breakdown, and issue definitions) was defined by the team beforehand,
@@ -155,6 +155,29 @@ documented in [test_evidence.md](test_evidence.md).
   confirm the result before handing the corrected files back to the team. In
   Entrega 3 the agent ran the same checks, plus `hardhat test` and integration
   runs on a local node and on Sepolia, directly in the team's working copy.
+
+---
+
+## Iteration 3.1 (2026-11-17): demo and defense hardening
+
+**Tool**: Claude Code (Claude Opus 5.5) acting as an agent in the local repository, on the branch `mejoras-demo-defensa`. The work was done at the team's request, with explicit rules: never read `.env` files, never mark anything as done without running it, small commits, and no push.
+
+**What the AI produced.** Every commit on the branch carries a `Co-Authored-By: Claude` trailer:
+
+- **Backend hardening**: helmet, CORS restricted by `CORS_ORIGINS`, rate limiting with `trust proxy`, a uniform error filter, `GET /health`, fail-closed on-chain verification in production, unique deposit hashes, pagination and sorting, `/properties/mine`, an idempotent seed with `DEMO_PRICE_SCALE`, and `render.yaml` fixes (`NODE_ENV`, `CORS_ORIGINS`, `--include=dev`).
+- **Frontend redesign**: a design system (tokens and accessible components) and every screen rewritten on top of it. The existing contract integration, image upload, and onboarding were kept and restyled.
+- **Tests**: 66 backend unit + 23 e2e, 131 frontend, and 6 Playwright browser e2e against a real stack that deploys `Escrow.sol`. Also CI, Dockerfiles, Prettier, and lint.
+- **Documentation**: `architecture.md`, `System-Diagrams.md`, `security.md`, `style_guide.md`, `demo_script.md`, `guia_defensa.md`, and `decisions.md`, plus updates to the README and `test_evidence.md`.
+
+**What the AI did not do.** It did not modify `Escrow.sol` or redeploy it. It did not touch `main` or push. It did not read any `.env` file: local runs received their variables through process environment, and the e2e tests use the public Hardhat test accounts.
+
+**How it was verified.** Every change was checked by running `tsc`, oxlint and ESLint with zero warnings, `prettier --check`, all test suites, `next build`, the Docker images, and the Playwright suite, whose output is recorded in [test_evidence.md](test_evidence.md). Problems the AI introduced and then fixed during the process:
+
+- A build command that would have failed on Render once `NODE_ENV=production` was set.
+- A helmet default that would have blocked cross-origin images.
+- A non-writable `uploads/` folder in the Docker image.
+
+**Team responsibility.** The team must review and understand these changes before the individual defense. [guia_defensa.md](guia_defensa.md) is written for that purpose.
 
 ---
 

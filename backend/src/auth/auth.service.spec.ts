@@ -65,9 +65,9 @@ describe('AuthService', () => {
     const { message } = service.createLoginMessage(wallet.address);
     const signature = await other.signMessage(message);
 
-    await expect(
-      service.connectWallet({ walletAddress: wallet.address, signature, message }),
-    ).rejects.toThrow(UnauthorizedException);
+    await expect(service.connectWallet({ walletAddress: wallet.address, signature, message })).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('rechaza reutilizar una firma ya usada (replay)', async () => {
@@ -82,9 +82,9 @@ describe('AuthService', () => {
     const message = 'Iniciar sesión en Rynok - 1736200000000';
     const signature = await wallet.signMessage(message);
 
-    await expect(
-      service.connectWallet({ walletAddress: wallet.address, signature, message }),
-    ).rejects.toThrow(UnauthorizedException);
+    await expect(service.connectWallet({ walletAddress: wallet.address, signature, message })).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('rechaza un mensaje emitido para otra wallet', async () => {
@@ -93,9 +93,9 @@ describe('AuthService', () => {
     const { message } = service.createLoginMessage(victim.address);
     const signature = await attacker.signMessage(message);
 
-    await expect(
-      service.connectWallet({ walletAddress: attacker.address, signature, message }),
-    ).rejects.toThrow(UnauthorizedException);
+    await expect(service.connectWallet({ walletAddress: attacker.address, signature, message })).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('rechaza un mensaje expirado', async () => {

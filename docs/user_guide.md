@@ -47,10 +47,10 @@
 En el menú, ve a **"Escrow"**. Ahí aparecen tus compras y ventas, con su estado
 (fondos retenidos, completado o reembolsado) y las acciones disponibles:
 
-| Quién | Botón | Qué pasa |
-| --- | --- | --- |
-| Comprador | **Confirmar entrega** | Los fondos se liberan al vendedor y la propiedad queda vendida. |
-| Vendedor | **Reembolsar al comprador** | Los fondos vuelven al comprador y la propiedad vuelve a estar a la venta. |
+| Quién     | Botón                                          | Qué pasa                                                                       |
+| --------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| Comprador | **Confirmar entrega**                          | Los fondos se liberan al vendedor y la propiedad queda vendida.                |
+| Vendedor  | **Reembolsar al comprador**                    | Los fondos vuelven al comprador y la propiedad vuelve a estar a la venta.      |
 | Comprador | **Reclamar reembolso** (aparece a los 30 días) | Si el vendedor no entregó en 30 días, recuperas tus fondos sin depender de él. |
 
 Mientras haya fondos en escrow, el vendedor no puede editar ni eliminar la

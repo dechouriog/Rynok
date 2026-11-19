@@ -60,8 +60,9 @@ export class UploadsService {
     const filename = basename(url);
     try {
       await unlink(join(uploadDir(), filename));
-    } catch (err: any) {
-      if (err?.code !== 'ENOENT') this.logger.warn(`No se pudo borrar ${filename}: ${err?.message}`);
+    } catch (err: unknown) {
+      const { code, message } = err as NodeJS.ErrnoException;
+      if (code !== 'ENOENT') this.logger.warn(`No se pudo borrar ${filename}: ${message}`);
     }
   }
 }

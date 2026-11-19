@@ -11,12 +11,20 @@ services:
     runtime: node
     plan: free
     # Se construye desde la raíz para usar el package-lock.json del monorepo.
-    buildCommand: npm ci --workspace=backend --no-audit --no-fund && npm run build --workspace=backend
+    # --include=dev: con NODE_ENV=production npm omitiría el CLI de Nest y el build fallaría.
+    buildCommand: npm ci --workspace=backend --include=dev --no-audit --no-fund && npm run build --workspace=backend
     startCommand: npm run start:prod --workspace=backend
     healthCheckPath: /
+    # GET /health devuelve además el estado de la base y de la verificación on-chain
     envVars:
       - key: NODE_VERSION
-        value: "22"
+        value: '22'
+      # Exige JWT_SECRET y verificación on-chain (sin ESCROW_RPC_URL se rechazan las compras)
+      - key: NODE_ENV
+        value: production
+      # Render termina TLS y pasa por proxy: las imágenes y CORS dependen de esta URL
+      - key: CORS_ORIGINS
+        sync: false
       - key: DATABASE_URL
         fromDatabase:
           name: rynok-db
@@ -24,7 +32,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: ESCROW_CONTRACT_ADDRESS
-        value: "0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9"
+        value: '0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9'
       # Se pide al crear el Blueprint: URL de Sepolia de Alchemy/Infura (no se versiona).
       - key: ESCROW_RPC_URL
         sync: false

@@ -9,3 +9,12 @@ coverage/
 *.tsbuildinfo
 # Imágenes subidas por los usuarios
 backend/uploads/
+
+# Builds y reportes de pruebas
+.next-e2e/
+test-results/
+playwright-report/
+.env.*
+!.env.example
+*.pem
+*.key

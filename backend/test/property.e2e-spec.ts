@@ -15,7 +15,12 @@ describe('PropertyController (e2e)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({ type: 'better-sqlite3', database: ':memory:', autoLoadEntities: true, synchronize: true }),
+        TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          autoLoadEntities: true,
+          synchronize: true,
+        }),
         AuthModule,
         PropertyModule,
       ],
@@ -32,7 +37,12 @@ describe('PropertyController (e2e)', () => {
   afterAll(async () => await app.close());
 
   it('crea una propiedad autenticado y la lista después', async () => {
-    const payload = { title: 'Apto El Poblado', description: 'x', location: 'Medellín', priceEth: '2.3' };
+    const payload = {
+      title: 'Apto El Poblado',
+      description: 'Tres habitaciones y balcón con vista a la ciudad.',
+      location: 'Medellín',
+      priceEth: '2.3',
+    };
 
     await request(app.getHttpServer())
       .post('/properties')
@@ -41,7 +51,8 @@ describe('PropertyController (e2e)', () => {
       .expect(201);
 
     const list = await request(app.getHttpServer()).get('/properties').expect(200);
-    expect(list.body).toHaveLength(1);
+    expect(list.body.items).toHaveLength(1);
+    expect(list.body.total).toBe(1);
   });
 
   it('rechaza crear una propiedad sin token', async () => {
@@ -53,6 +64,6 @@ describe('PropertyController (e2e)', () => {
 
   it('filtra propiedades por ubicación', async () => {
     const res = await request(app.getHttpServer()).get('/properties?location=Medellín').expect(200);
-    expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body.items.length).toBeGreaterThan(0);
   });
 });

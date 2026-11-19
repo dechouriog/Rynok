@@ -14,7 +14,12 @@ describe('Auth flow (e2e)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({ type: 'better-sqlite3', database: ':memory:', autoLoadEntities: true, synchronize: true }),
+        TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          autoLoadEntities: true,
+          synchronize: true,
+        }),
         AuthModule,
         PropertyModule,
       ],
@@ -58,10 +63,12 @@ describe('Auth flow (e2e)', () => {
 
   it('rechaza reutilizar una firma de login ya usada', async () => {
     const wallet = Wallet.createRandom();
-    const { body } = await request(app.getHttpServer())
-      .post('/auth/nonce')
-      .send({ walletAddress: wallet.address });
-    const payload = { walletAddress: wallet.address, signature: await wallet.signMessage(body.message), message: body.message };
+    const { body } = await request(app.getHttpServer()).post('/auth/nonce').send({ walletAddress: wallet.address });
+    const payload = {
+      walletAddress: wallet.address,
+      signature: await wallet.signMessage(body.message),
+      message: body.message,
+    };
 
     await request(app.getHttpServer()).post('/auth/connect').send(payload).expect(201);
     await request(app.getHttpServer()).post('/auth/connect').send(payload).expect(401);

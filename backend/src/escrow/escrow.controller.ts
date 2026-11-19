@@ -1,18 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
 
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { EscrowService } from './escrow.service.js';
 
@@ -34,18 +22,14 @@ export class EscrowController {
     summary: 'Registrar un depósito ya confirmado on-chain (el comprador es el usuario autenticado)',
   })
   @UseGuards(WalletAuthGuard)
-  recordDeposit(
-    @Body() dto: RecordDepositDto,
-    @CurrentUser() user: { wallet: string },
-  ) {
+  recordDeposit(@Body() dto: RecordDepositDto, @CurrentUser() user: { wallet: string }) {
     return this.service.recordDeposit(dto, user.wallet);
   }
 
   @Get('my-transactions')
   @ApiBearerAuth('access-token')
   @ApiOperation({
-    summary:
-      'Historial de transacciones del usuario autenticado (compras y ventas)',
+    summary: 'Historial de transacciones del usuario autenticado (compras y ventas)',
   })
   @UseGuards(WalletAuthGuard)
   findMine(@CurrentUser() user: { wallet: string }) {
@@ -63,8 +47,7 @@ export class EscrowController {
   @Post(':propertyId/confirm')
   @ApiBearerAuth('access-token')
   @ApiOperation({
-    summary:
-      'Confirmar que los fondos se liberaron (solo el comprador)',
+    summary: 'Confirmar que los fondos se liberaron (solo el comprador)',
   })
   @UseGuards(WalletAuthGuard)
   confirm(
@@ -72,18 +55,13 @@ export class EscrowController {
     @Body() dto: ConfirmReleaseDto,
     @CurrentUser() user: { wallet: string },
   ) {
-    return this.service.confirmRelease(
-      propertyId,
-      user.wallet,
-      dto.releaseTxHash,
-    );
+    return this.service.confirmRelease(propertyId, user.wallet, dto.releaseTxHash);
   }
 
   @Post(':propertyId/refund')
   @ApiBearerAuth('access-token')
   @ApiOperation({
-    summary:
-      'Registrar un reembolso (el vendedor, o el comprador cuando venció el plazo de entrega)',
+    summary: 'Registrar un reembolso (el vendedor, o el comprador cuando venció el plazo de entrega)',
   })
   @UseGuards(WalletAuthGuard)
   refund(
@@ -91,10 +69,6 @@ export class EscrowController {
     @Body() dto: RefundDto,
     @CurrentUser() user: { wallet: string },
   ) {
-    return this.service.refund(
-      propertyId,
-      user.wallet,
-      dto.refundTxHash,
-    );
+    return this.service.refund(propertyId, user.wallet, dto.refundTxHash);
   }
 }

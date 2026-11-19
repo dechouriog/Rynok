@@ -1,97 +1,129 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useTransition, type FormEvent } from 'react';
+import { MapPin, Search, X } from 'lucide-react';
+import { Button, Input, Select } from '@/components/ui';
 
-const PRICE_RANGES = [
+export const PRICE_RANGES = [
   { label: 'Cualquier precio', min: '', max: '' },
   { label: 'Hasta 2 ETH', min: '', max: '2' },
-  { label: '2 - 5 ETH', min: '2', max: '5' },
-  { label: '5+ ETH', min: '5', max: '' },
+  { label: '2 a 5 ETH', min: '2', max: '5' },
+  { label: 'Más de 5 ETH', min: '5', max: '' },
 ];
 
-const SORT_OPTIONS = [
+export const SORT_OPTIONS = [
   { label: 'Más recientes', value: 'recent' },
   { label: 'Precio: menor a mayor', value: 'price_asc' },
   { label: 'Precio: mayor a menor', value: 'price_desc' },
 ];
 
+const FILTER_KEYS = ['q', 'location', 'minPrice', 'maxPrice', 'sort', 'status'];
+
+/** Filtros del marketplace. El estado vive en la URL: se puede compartir, recargar y usar atrás/adelante. */
 export function PropertyFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [pending, startTransition] = useTransition();
   const [q, setQ] = useState(searchParams.get('q') ?? '');
   const [location, setLocation] = useState(searchParams.get('location') ?? '');
 
-  // Los selects se derivan de la URL para reflejar el filtro activo al recargar o navegar.
-  const priceIndex = Math.max(
-    0,
-    PRICE_RANGES.findIndex(
-      (range) =>
-        range.min === (searchParams.get('minPrice') ?? '') &&
-        range.max === (searchParams.get('maxPrice') ?? ''),
-    ),
+  const currentRange = PRICE_RANGES.findIndex(
+    (r) => r.min === (searchParams.get('minPrice') ?? '') && r.max === (searchParams.get('maxPrice') ?? ''),
   );
-  const sort = searchParams.get('sort') ?? 'recent';
+  const hasFilters = FILTER_KEYS.some((key) => searchParams.get(key));
 
   function pushParams(next: Record<string, string>) {
     const params = new URLSearchParams(searchParams.toString());
-    Object.entries(next).forEach(([key, value]) => {
-      if (value) params.set(key, value);
-      else params.delete(key);
-    });
-    router.push(`/properties?${params.toString()}`);
+    Object.entries(next).forEach(([key, value]) => (value ? params.set(key, value) : params.delete(key)));
+    params.delete('page'); // cualquier cambio de filtro vuelve a la primera página
+    const qs = params.toString();
+    startTransition(() => router.push(`/properties${qs ? `?${qs}` : ''}`, { scroll: false }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    pushParams({ q, location });
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    pushParams({ q: q.trim(), location: location.trim() });
   }
 
-  function handlePriceChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const range = PRICE_RANGES[Number(e.target.value)];
-    pushParams({ minPrice: range.min, maxPrice: range.max });
-  }
-
-  function handleSortChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    pushParams({ sort: e.target.value });
+  function clear() {
+    setQ('');
+    setLocation('');
+    startTransition(() => router.push('/properties', { scroll: false }));
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 flex flex-wrap gap-3">
-      <input
-        placeholder="Buscar por título"
+    <form
+      onSubmit={handleSubmit}
+      role="search"
+      aria-label="Filtrar propiedades"
+      aria-busy={pending}
+      className="mt-6 grid gap-3 rounded-card border border-line bg-surface-muted p-4 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto]"
+    >
+      <Input
+        label="Buscar"
+        hideLabel
+        placeholder="Buscar por título o ciudad"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+        icon={<Search className="h-4 w-4" aria-hidden />}
+        maxLength={100}
       />
-      <input
+      <Input
+        label="Ubicación"
+        hideLabel
         placeholder="Ubicación"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
-        className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+        icon={<MapPin className="h-4 w-4" aria-hidden />}
+        maxLength={120}
       />
-      <select
-        aria-label="Rango de precio"
-        value={priceIndex}
-        onChange={handlePriceChange}
-        className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600"
+      <Select
+        label="Rango de precio"
+        hideLabel
+        value={currentRange === -1 ? 0 : currentRange}
+        onChange={(e) => {
+          const range = PRICE_RANGES[Number(e.target.value)];
+          pushParams({ minPrice: range.min, maxPrice: range.max });
+        }}
       >
         {PRICE_RANGES.map((range, i) => (
-          <option key={range.label} value={i}>{range.label}</option>
+          <option key={range.label} value={i}>
+            {range.label}
+          </option>
         ))}
-      </select>
-      <select
-        aria-label="Ordenar"
-        value={sort}
-        onChange={handleSortChange}
-        className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600"
+      </Select>
+      <Select
+        label="Ordenar por"
+        hideLabel
+        value={searchParams.get('sort') ?? 'recent'}
+        onChange={(e) => pushParams({ sort: e.target.value === 'recent' ? '' : e.target.value })}
       >
         {SORT_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
         ))}
-      </select>
-      <button type="submit" className="rounded-lg bg-slate-900 px-6 py-2 text-sm font-semibold text-white hover:bg-slate-800">
-        Buscar
-      </button>
+      </Select>
+      <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
+        <Button
+          type="submit"
+          loading={pending}
+          icon={<Search className="h-4 w-4" aria-hidden />}
+          className="flex-1 lg:flex-none"
+        >
+          Buscar
+        </Button>
+        {hasFilters && (
+          <Button
+            variant="ghost"
+            onClick={clear}
+            aria-label="Limpiar filtros"
+            icon={<X className="h-4 w-4" aria-hidden />}
+          >
+            <span className="lg:sr-only">Limpiar</span>
+          </Button>
+        )}
+      </div>
     </form>
   );
 }

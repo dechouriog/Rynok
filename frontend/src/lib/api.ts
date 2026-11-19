@@ -1,63 +1,21 @@
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+/**
+ * Cliente HTTP de la API de Rynok. Todas las funciones lanzan `ApiError` con un mensaje en español
+ * listo para mostrar, y `status` 0 cuando el backend no responde.
+ */
 
-/** Mensaje de un solo uso (con nonce) que la wallet debe firmar para iniciar sesión. */
-export async function requestLoginMessage(walletAddress: string) {
-  const res = await fetch(`${API_URL}/auth/nonce`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ walletAddress }),
-  });
+// En el servidor (Server Components, Docker) puede usarse una URL interna distinta a la pública.
+export const API_URL =
+  (typeof window === 'undefined' ? process.env.API_URL_INTERNAL : undefined) ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  'http://localhost:3001';
 
-  if (!res.ok) {
-    throw new Error('No se pudo iniciar el login');
-  }
+/** URL pública de la API (la que ve el navegador), para recursos como las imágenes subidas. */
+const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
-  const { message } = (await res.json()) as { message: string };
-  return message;
-}
+export type PropertyStatus = 'AVAILABLE' | 'IN_ESCROW' | 'SOLD';
+export type EscrowStatus = 'AWAITING_DELIVERY' | 'COMPLETE' | 'REFUNDED';
 
-export async function connectWallet(
-  walletAddress: string,
-  signature: string,
-  message: string,
-) {
-  const res = await fetch(`${API_URL}/auth/connect`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      walletAddress,
-      signature,
-      message,
-    }),
-  });
-
-  if (!res.ok) {
-    throw new Error('No se pudo autenticar la wallet');
-  }
-
-  return res.json() as Promise<{
-    accessToken: string;
-    user: {
-      id: string;
-      walletAddress: string;
-    };
-  }>;
-}
-
-export async function getMe(token: string) {
-  const res = await fetch(`${API_URL}/auth/me`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error('Sesión inválida');
-  }
-
-  return res.json();
-}
+export type User = { id: string; walletAddress: string; displayName?: string | null };
 
 export type Property = {
   id: string;
@@ -65,256 +23,192 @@ export type Property = {
   description: string;
   location: string;
   priceEth: string;
-  imageUrl?: string;
-  status?: 'AVAILABLE' | 'IN_ESCROW' | 'SOLD';
-  owner: {
-    id: string;
-    walletAddress: string;
-  };
+  imageUrl?: string | null;
+  status: PropertyStatus;
+  owner: User;
   createdAt: string;
+  updatedAt?: string;
 };
 
-export const DEFAULT_PROPERTY_IMAGE =
-  'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1000&q=60';
+export type Page<T> = { items: T[]; total: number; page: number; limit: number; totalPages: number };
 
-/** Las imágenes subidas se guardan como "/uploads/..." y las sirve el backend. */
-export function imageSrc(url?: string | null) {
-  if (!url) return DEFAULT_PROPERTY_IMAGE;
-  return url.startsWith('/uploads/') ? `${API_URL}${url}` : url;
+export type EscrowTransaction = {
+  id: string;
+  propertyId: string;
+  /** null si el vendedor eliminó la propiedad después de liquidar la operación. */
+  property?: Property | null;
+  buyerWallet: string;
+  sellerWallet: string;
+  amountEth: string;
+  contractAddress: string;
+  status: EscrowStatus;
+  depositTxHash: string;
+  releaseTxHash?: string | null;
+  refundTxHash?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type PropertyInput = {
+  title: string;
+  description: string;
+  location: string;
+  priceEth: string;
+  imageUrl?: string;
+};
+
+export type SortOption = 'recent' | 'price_asc' | 'price_desc';
+export type PropertyFilters = {
+  q?: string;
+  location?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  status?: PropertyStatus;
+  sort?: SortOption;
+  page?: string | number;
+  limit?: string | number;
+};
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+    public readonly details: string[] = [],
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
 }
 
+export const NETWORK_ERROR_MESSAGE =
+  'No pudimos conectar con el servidor de Rynok. Revisa tu conexión e inténtalo de nuevo.';
+
+type RequestOptions = { method?: string; token?: string; body?: unknown };
+
+async function request<T>(path: string, { method = 'GET', token, body }: RequestOptions = {}): Promise<T> {
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method,
+      cache: 'no-store',
+      headers: {
+        ...(body !== undefined && !isForm ? { 'Content-Type': 'application/json' } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError(0, NETWORK_ERROR_MESSAGE);
+  }
+
+  const data: unknown = await res.json().catch(() => null);
+  if (!res.ok) {
+    const raw = (data as { message?: unknown } | null)?.message;
+    const details = Array.isArray(raw) ? raw.map(String) : [];
+    const message =
+      typeof raw === 'string'
+        ? raw
+        : (details[0] ??
+          (res.status >= 500
+            ? 'El servidor tuvo un problema. Inténtalo de nuevo en un momento.'
+            : 'La solicitud no se pudo completar.'));
+    throw new ApiError(res.status, message, details);
+  }
+  return data as T;
+}
+
+function query(params: Record<string, string | number | undefined>): string {
+  const clean = Object.entries(params).filter(([, v]) => v !== undefined && v !== '');
+  return clean.length ? `?${new URLSearchParams(clean.map(([k, v]) => [k, String(v)])).toString()}` : '';
+}
+
+// --- Auth (nonce de un solo uso → firma → JWT) ---
+export async function requestLoginMessage(walletAddress: string) {
+  const { message } = await request<{ message: string }>('/auth/nonce', { method: 'POST', body: { walletAddress } });
+  return message;
+}
+
+export function connectWallet(walletAddress: string, signature: string, message: string) {
+  return request<{ accessToken: string; user: User }>('/auth/connect', {
+    method: 'POST',
+    body: { walletAddress, signature, message },
+  });
+}
+
+export function getMe(token: string) {
+  return request<User>('/auth/me', { token });
+}
+
+// --- Imágenes ---
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+/** Las imágenes subidas se guardan como "/uploads/..." y las sirve el backend. */
+export function imageSrc(url?: string | null): string | null {
+  if (!url) return null;
+  return url.startsWith('/uploads/') ? `${PUBLIC_API_URL}${url}` : url;
+}
 
 /** Sube una imagen y devuelve la URL a guardar en la propiedad. */
 export async function uploadImage(file: File, token: string) {
   const body = new FormData();
   body.append('file', file);
-
-  const res = await fetch(`${API_URL}/uploads/images`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
-    body,
-  });
-
-  if (!res.ok) {
-    throw new Error(await errorMessage(res, 'No se pudo subir la imagen'));
-  }
-
-  const { url } = (await res.json()) as { url: string };
+  const { url } = await request<{ url: string }>('/uploads/images', { method: 'POST', token, body });
   return url;
 }
 
-/** PostgreSQL devuelve los decimales con ceros de relleno ("1.500000" -> "1.5"). */
-export function formatEth(value: string) {
-  return value.includes('.') ? value.replace(/\.?0+$/, '') : value;
+// --- Propiedades ---
+export function getProperties(filters: PropertyFilters = {}) {
+  return request<Page<Property>>(`/properties${query(filters)}`);
 }
 
-export async function getProperties(filters?: {
-  q?: string;
-  location?: string;
-  minPrice?: string;
-  maxPrice?: string;
-}): Promise<Property[]> {
-  const clean = Object.fromEntries(
-    Object.entries(filters ?? {}).filter(([, value]) => Boolean(value)),
-  );
-
-  const params = new URLSearchParams(clean).toString();
-
-  const res = await fetch(
-    `${API_URL}/properties${params ? `?${params}` : ''}`,
-    {
-      cache: 'no-store',
-    },
-  );
-
-  if (!res.ok) {
-    throw new Error('No se pudieron cargar las propiedades');
-  }
-
-  return res.json();
-}
-
-export async function getProperty(id: string): Promise<Property> {
-  const res = await fetch(`${API_URL}/properties/${id}`, {
-    cache: 'no-store',
-  });
-
-  if (!res.ok) {
-    throw new Error('Propiedad no encontrada');
-  }
-
-  return res.json();
-}
-
-export async function createProperty(
-  data: Partial<Property>,
-  token: string,
-) {
-  const res = await fetch(`${API_URL}/properties`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    throw new Error(await errorMessage(res, 'No se pudo crear la propiedad'));
-  }
-
-  return res.json();
-}
-
-export async function updateProperty(
-  id: string,
-  data: Partial<Property>,
-  token: string,
-) {
-  const res = await fetch(`${API_URL}/properties/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    throw new Error(await errorMessage(res, 'No se pudo actualizar la propiedad'));
-  }
-
-  return res.json();
-}
-
-export async function deleteProperty(
-  id: string,
-  token: string,
-) {
-  const res = await fetch(`${API_URL}/properties/${id}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error('No se pudo eliminar la propiedad');
-  }
-
-  return res.json();
-}
-
-export async function recordEscrowDeposit(
-  data: {
-    propertyId: string;
-    buyerWallet: string;
-    sellerWallet: string;
-    amountEth: string;
-    contractAddress: string;
-    depositTxHash: string;
-  },
-  token: string,
-) {
-  const res = await fetch(`${API_URL}/escrow/deposit`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    throw new Error(await errorMessage(res, 'No se pudo registrar el depósito'));
-  }
-
-  return res.json();
-}
-
-async function errorMessage(res: Response, fallback: string) {
+/** Devuelve null si el id no es válido o la propiedad no existe (para usar notFound()). */
+export async function getProperty(id: string): Promise<Property | null> {
   try {
-    const body = await res.json();
-    return Array.isArray(body.message) ? body.message.join(', ') : body.message ?? fallback;
-  } catch {
-    return fallback;
+    return await request<Property>(`/properties/${encodeURIComponent(id)}`);
+  } catch (error) {
+    if (error instanceof ApiError && (error.status === 404 || error.status === 400)) return null;
+    throw error;
   }
 }
 
-export async function confirmEscrowRelease(
-  propertyId: string,
-  releaseTxHash: string,
+export function getMyProperties(token: string) {
+  return request<Property[]>('/properties/mine', { token });
+}
+
+export function createProperty(data: PropertyInput, token: string) {
+  return request<Property>('/properties', { method: 'POST', token, body: data });
+}
+
+export function updateProperty(id: string, data: Partial<PropertyInput>, token: string) {
+  return request<Property>(`/properties/${id}`, { method: 'PATCH', token, body: data });
+}
+
+export function deleteProperty(id: string, token: string) {
+  return request<{ deleted: true }>(`/properties/${id}`, { method: 'DELETE', token });
+}
+
+// --- Escrow (el backend verifica cada hash contra el contrato) ---
+export function recordEscrowDeposit(
+  data: { propertyId: string; amountEth: string; contractAddress: string; depositTxHash: string },
   token: string,
 ) {
-  const res = await fetch(`${API_URL}/escrow/${propertyId}/confirm`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ releaseTxHash }),
-  });
-
-  if (!res.ok) {
-    throw new Error(await errorMessage(res, 'No se pudo registrar la liberación de fondos'));
-  }
-
-  return res.json() as Promise<EscrowTransaction>;
+  return request<EscrowTransaction>('/escrow/deposit', { method: 'POST', token, body: data });
 }
 
-export async function refundEscrow(
-  propertyId: string,
-  refundTxHash: string,
-  token: string,
-) {
-  const res = await fetch(`${API_URL}/escrow/${propertyId}/refund`, {
+export function confirmEscrowRelease(propertyId: string, releaseTxHash: string, token: string) {
+  return request<EscrowTransaction>(`/escrow/${propertyId}/confirm`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ refundTxHash }),
+    token,
+    body: { releaseTxHash },
   });
-
-  if (!res.ok) {
-    throw new Error(await errorMessage(res, 'No se pudo registrar el reembolso'));
-  }
-
-  return res.json() as Promise<EscrowTransaction>;
 }
 
-export type EscrowTransaction = {
-  id: string;
-  propertyId: string;
-  buyerWallet: string;
-  sellerWallet: string;
-  amountEth: string;
-  status: 'AWAITING_DELIVERY' | 'COMPLETE' | 'REFUNDED';
-  depositTxHash: string;
-  releaseTxHash?: string;
-  refundTxHash?: string;
-  createdAt: string;
-};
+export function refundEscrow(propertyId: string, refundTxHash: string, token: string) {
+  return request<EscrowTransaction>(`/escrow/${propertyId}/refund`, { method: 'POST', token, body: { refundTxHash } });
+}
 
-export async function getMyTransactions(
-  token: string,
-): Promise<EscrowTransaction[]> {
-  const res = await fetch(
-    `${API_URL}/escrow/my-transactions`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
-
-  if (!res.ok) {
-    throw new Error(
-      'No se pudo cargar el historial de transacciones',
-    );
-  }
-
-  return res.json();
+export function getMyTransactions(token: string) {
+  return request<EscrowTransaction[]>('/escrow/my-transactions', { token });
 }

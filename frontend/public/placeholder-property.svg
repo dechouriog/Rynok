@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Ilustración de una casa">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dbeafe"/>
+      <stop offset="1" stop-color="#eff6ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <rect y="470" width="800" height="130" fill="#bfdbfe"/>
+  <path d="M220 300 L400 170 L580 300 Z" fill="#1d4ed8"/>
+  <rect x="250" y="295" width="300" height="180" fill="#ffffff"/>
+  <rect x="370" y="370" width="60" height="105" rx="6" fill="#1e40af"/>
+  <rect x="285" y="330" width="60" height="50" rx="6" fill="#93c5fd"/>
+  <rect x="455" y="330" width="60" height="50" rx="6" fill="#93c5fd"/>
+</svg>

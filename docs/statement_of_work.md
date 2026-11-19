@@ -99,10 +99,10 @@ The project will be evaluated using both business and technical indicators.
 
 ## People
 
-| Name | Role |
-| --- | --- |
-| Diego Chourio | Full-Stack Blockchain Developer |
-| Leidy Obando | Full-Stack Developer & Documentation |
+| Name          | Role                                 |
+| ------------- | ------------------------------------ |
+| Diego Chourio | Full-Stack Blockchain Developer      |
+| Leidy Obando  | Full-Stack Developer & Documentation |
 
 ---
 
@@ -129,16 +129,16 @@ The project will be evaluated using both business and technical indicators.
 
 ## Responsibilities
 
-| Activity | Diego Chourio | Leidy Obando |
-| --- | --- | --- |
-| Requirements Analysis | Responsible | Consulted |
-| UI Development | Consulted | Responsible |
-| Backend Development | Responsible | Consulted |
-| Smart Contracts | Responsible | Informed |
-| Database Design | Responsible | Consulted |
-| Testing | Responsible | Responsible |
-| Documentation | Consulted | Responsible |
-| Deployment | Responsible | Consulted |
+| Activity              | Diego Chourio | Leidy Obando |
+| --------------------- | ------------- | ------------ |
+| Requirements Analysis | Responsible   | Consulted    |
+| UI Development        | Consulted     | Responsible  |
+| Backend Development   | Responsible   | Consulted    |
+| Smart Contracts       | Responsible   | Informed     |
+| Database Design       | Responsible   | Consulted    |
+| Testing               | Responsible   | Responsible  |
+| Documentation         | Consulted     | Responsible  |
+| Deployment            | Responsible   | Consulted    |
 
 ---
 
@@ -308,7 +308,7 @@ end-to-end testing of the application:
   - `JWT_SECRET` is now actually read from `.env` (before this fix, the backend always signed tokens with a default secret);
   - properties cannot be edited or deleted while funds are in escrow.
 - **Frontend**:
-  - the *Habilitar compra* button;
+  - the _Habilitar compra_ button;
   - confirm delivery, refund, and claim-after-deadline actions in `/escrow`;
   - sign-out when the MetaMask account changes;
   - a prompt to switch networks when MetaMask is not on Sepolia.
@@ -321,13 +321,13 @@ end-to-end testing of the application:
   72 frontend tests, plus integration runs on a local node and on Sepolia. See
   [test_evidence.md](test_evidence.md).
 
-| Milestone | Status | Notes |
-| --- | --- | --- |
-| M1 — Foundation & Authentication | Delivered | Wallet-signature authentication with single-use nonces, JWT session, wallet connect/disconnect UI. |
-| M2 — Property Marketplace | Delivered | CRUD, search/filter, ownership-based edit/delete (blocked while in escrow), dashboard with real user data. |
-| M3 — Blockchain & Escrow | Delivered | `Escrow.sol` (list/deposit/confirmDelivery/refund/claimRefund), backend on-chain verification, real MetaMask purchase flow. |
+| Milestone                         | Status    | Notes                                                                                                                       |
+| --------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------- |
+| M1 — Foundation & Authentication  | Delivered | Wallet-signature authentication with single-use nonces, JWT session, wallet connect/disconnect UI.                          |
+| M2 — Property Marketplace         | Delivered | CRUD, search/filter, ownership-based edit/delete (blocked while in escrow), dashboard with real user data.                  |
+| M3 — Blockchain & Escrow          | Delivered | `Escrow.sol` (list/deposit/confirmDelivery/refund/claimRefund), backend on-chain verification, real MetaMask purchase flow. |
 | M4 — Transactions & Documentation | Delivered | Transaction history with confirm/refund/claim actions (`/escrow`), dashboard recent activity, onboarding modal, user guide. |
-| M5 — Testing & Finalization | Delivered | Contract deployed on Sepolia; end-to-end flow validated on-chain; test evidence documented. |
+| M5 — Testing & Finalization       | Delivered | Contract deployed on Sepolia; end-to-end flow validated on-chain; test evidence documented.                                 |
 
 **Out of scope, documented as future work:** an escrow dispute-resolution system
 (arbiter/multisig). See [docs/escrow.md](escrow.md#trabajo-futuro).
@@ -335,6 +335,13 @@ end-to-end testing of the application:
 AI-assisted development (delivery planning, review, bug fixing, testing, and frontend
 implementation) was used during these deliveries. See [docs/IA_Doc.md](IA_Doc.md)
 for full disclosure.
+
+## Iteration 3.1: demo and defense hardening (branch `mejoras-demo-defensa`, pending review)
+
+- Design system and accessible redesign of every screen. The dashboard now shows status counters, pending purchases, and the user's properties, replacing the previous recent-activity list.
+- API hardening: helmet, CORS, rate limiting, fail-closed on-chain verification in production, unique deposit hashes, `/health`, and pagination.
+- Playwright browser e2e against a real stack, GitHub Actions CI, and Docker images. The contract (`Escrow.sol`) and its Sepolia deployment are unchanged.
+- Pending: running CI on GitHub (the branch has to be pushed) and redeploying Render and Vercel with the new variables (`CORS_ORIGINS`, `NODE_ENV`).
 
 ---
 
@@ -352,18 +359,18 @@ As this is an independently developed academic project, no external client oblig
 
 ## Expected Start Date and Completion Date
 
-| Phase | Duration |
-| --- | --- |
-| Project Planning | Week 1 |
-| Requirements Analysis | Week 2 |
-| UI/UX Design | Week 4 |
-| Backend Development | Weeks 5–6 |
-| Frontend Development | Weeks 6–8 |
-| Smart Contract Development | Week 9 |
-| Wallet Integration | Week 10 |
-| Testing & Bug Fixes | Week 12 |
-| Deployment | Week 14 |
-| Documentation | Week 15 |
+| Phase                      | Duration  |
+| -------------------------- | --------- |
+| Project Planning           | Week 1    |
+| Requirements Analysis      | Week 2    |
+| UI/UX Design               | Week 4    |
+| Backend Development        | Weeks 5–6 |
+| Frontend Development       | Weeks 6–8 |
+| Smart Contract Development | Week 9    |
+| Wallet Integration         | Week 10   |
+| Testing & Bug Fixes        | Week 12   |
+| Deployment                 | Week 14   |
+| Documentation              | Week 15   |
 
 Estimated project duration:
 

@@ -2,7 +2,7 @@
 
 Short rationale for each technology choice, including the alternatives considered
 and the trade-off accepted. This complements the "Software Employed" section of
-the Statement of Work, which lists *what* was chosen — this explains *why*.
+the Statement of Work, which lists _what_ was chosen — this explains _why_.
 
 ---
 

@@ -3,19 +3,19 @@
 Hardhat 3 project (Mocha + ethers) with the `Escrow` contract that holds ETH for Rynok purchases.
 Design, security model, and limitations: [../docs/escrow.md](../docs/escrow.md).
 
-| Network | Address |
-| --- | --- |
+| Network                    | Address                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Sepolia (chainId 11155111) | [`0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9`](https://sepolia.etherscan.io/address/0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9) |
 
 ## Functions
 
-| Function | Caller | Effect |
-| --- | --- | --- |
-| `list(propertyId, price)` | Seller | Enables the sale at an exact price (in wei). It can be updated while there is no pending deposit. |
-| `deposit(propertyId, seller)` | Buyer | Deposits exactly the listed price. |
-| `confirmDelivery(propertyId, seller)` | Buyer | Releases the funds to the seller. |
-| `refund(propertyId, seller)` | Seller | Returns the funds to the buyer; the property can be bought again. |
-| `claimRefund(propertyId, seller)` | Buyer | After `DELIVERY_PERIOD` (30 days), the buyer reclaims the funds. |
+| Function                              | Caller | Effect                                                                                            |
+| ------------------------------------- | ------ | ------------------------------------------------------------------------------------------------- |
+| `list(propertyId, price)`             | Seller | Enables the sale at an exact price (in wei). It can be updated while there is no pending deposit. |
+| `deposit(propertyId, seller)`         | Buyer  | Deposits exactly the listed price.                                                                |
+| `confirmDelivery(propertyId, seller)` | Buyer  | Releases the funds to the seller.                                                                 |
+| `refund(propertyId, seller)`          | Seller | Returns the funds to the buyer; the property can be bought again.                                 |
+| `claimRefund(propertyId, seller)`     | Buyer  | After `DELIVERY_PERIOD` (30 days), the buyer reclaims the funds.                                  |
 
 `propertyId` is `uint256(keccak256(<property UUID>))`.
 

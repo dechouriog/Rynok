@@ -22,16 +22,13 @@ describe('AppModule con PostgreSQL (e2e)', () => {
   });
 
   it('GET / responde el health check', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect({ status: 'ok', service: 'rynok-api' });
+    return request(app.getHttpServer()).get('/').expect(200).expect({ status: 'ok', service: 'rynok-api' });
   });
 
   it('GET /properties lee de la base de datos', () => {
     return request(app.getHttpServer())
       .get('/properties')
       .expect(200)
-      .expect((res) => expect(Array.isArray(res.body)).toBe(true));
+      .expect((res) => expect(Array.isArray(res.body.items)).toBe(true));
   });
 });

@@ -15,6 +15,8 @@ const config: HardhatUserConfig = {
   plugins: [hardhatToolboxMochaEthersPlugin],
   solidity: '0.8.24',
   networks: {
+    // Nodo local (npx hardhat node) para la demo y el desarrollo sin Sepolia.
+    localhost: { type: 'http' as const, chainType: 'l1' as const, url: 'http://127.0.0.1:8545' },
     ...(process.env.SEPOLIA_RPC_URL
       ? {
           sepolia: {

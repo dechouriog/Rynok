@@ -7,8 +7,13 @@ import { Property } from './entities/property.entity.js';
 import { UploadsService } from '../uploads/uploads.service.js';
 
 const mockRepo = () => ({
-  create: vi.fn(), save: vi.fn(async (x) => x), find: vi.fn(), findOneBy: vi.fn(), remove: vi.fn(),
+  create: vi.fn(),
+  save: vi.fn(async (x) => x),
+  find: vi.fn(),
+  findOneBy: vi.fn(),
+  remove: vi.fn(),
   countBy: vi.fn().mockResolvedValue(0),
+  findAndCount: vi.fn().mockResolvedValue([[], 0]),
 });
 
 describe('PropertyService', () => {
@@ -35,7 +40,7 @@ describe('PropertyService', () => {
     repo.save.mockResolvedValue({ id: '1', ...dto });
 
     const result = await service.create(dto as any, 'owner-1');
-    expect(repo.create).toHaveBeenCalledWith({ ...dto, owner: { id: 'owner-1' } });
+    expect(repo.create).toHaveBeenCalledWith({ ...dto, imageUrl: null, owner: { id: 'owner-1' } });
     expect(result).toEqual({ id: '1', ...dto });
   });
 
@@ -92,9 +97,53 @@ describe('PropertyService', () => {
   });
 
   it('filtra por precio mínimo aunque no haya máximo', async () => {
-    repo.find.mockResolvedValue([]);
     await service.search({ minPrice: '2' });
-    const { where } = repo.find.mock.calls[0][0];
+    const { where } = repo.findAndCount.mock.calls[0][0];
     expect(where.priceEth).toBeDefined();
+  });
+});
+describe('PropertyService: búsqueda paginada', () => {
+  let service: PropertyService;
+  let repo: ReturnType<typeof mockRepo>;
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        PropertyService,
+        { provide: getRepositoryToken(Property), useFactory: mockRepo },
+        { provide: UploadsService, useValue: { deleteIfLocal: vi.fn() } },
+      ],
+    }).compile();
+    service = module.get(PropertyService);
+    repo = module.get(getRepositoryToken(Property));
+  });
+
+  it('pagina con valores por defecto y calcula el total de páginas', async () => {
+    repo.findAndCount.mockResolvedValue([[{ id: '1' }], 30]);
+    const result = await service.search();
+    expect(repo.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ skip: 0, take: 12 }));
+    expect(result).toMatchObject({ total: 30, page: 1, limit: 12, totalPages: 3 });
+  });
+
+  it('aplica página, límite y orden por precio', async () => {
+    await service.search({ page: 3, limit: 5, sort: 'price_desc' });
+    expect(repo.findAndCount).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5, order: { priceEth: 'DESC', createdAt: 'DESC' } }),
+    );
+  });
+
+  it('q busca en título o ubicación y respeta los demás filtros', async () => {
+    await service.search({ q: 'casa', location: 'Medellín', maxPrice: '3' });
+    const where = repo.findAndCount.mock.calls[0][0].where;
+    expect(where).toHaveLength(2);
+    expect(where[0].title.type).toBe('ilike');
+    expect(where[0].priceEth.type).toBe('lessThanOrEqual');
+    expect(where[1].location.type).toBe('and');
+  });
+
+  it('findByOwner devuelve las propiedades del dueño', async () => {
+    repo.find.mockResolvedValue([]);
+    await service.findByOwner('owner-1');
+    expect(repo.find).toHaveBeenCalledWith({ where: { owner: { id: 'owner-1' } }, order: { createdAt: 'DESC' } });
   });
 });

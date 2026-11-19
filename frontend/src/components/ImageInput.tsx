@@ -1,7 +1,9 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { ImagePlus, X } from 'lucide-react';
-import { ACCEPTED_IMAGE_TYPES, imageSrc, MAX_IMAGE_BYTES, uploadImage } from '@/lib/api';
+import Image from 'next/image';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { AlertCircle, ImagePlus, RefreshCw, X } from 'lucide-react';
+import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_BYTES, imageSrc, uploadImage } from '@/lib/api';
+import { Button } from '@/components/ui';
 
 /** Imagen elegida: un archivo nuevo (se sube al guardar) o una URL ya existente. */
 export type ImageValue = { file: File | null; url: string };
@@ -11,24 +13,28 @@ export async function resolveImageUrl(value: ImageValue, token: string) {
   return value.file ? uploadImage(value.file, token) : value.url.trim();
 }
 
+/** Vista previa: URL temporal del archivo elegido (se libera al cambiarlo) o imagen ya guardada. */
+function usePreview(value: ImageValue) {
+  const objectUrl = useMemo(() => (value.file ? URL.createObjectURL(value.file) : null), [value.file]);
+  useEffect(
+    () => () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    },
+    [objectUrl],
+  );
+  return objectUrl ?? (value.url ? imageSrc(value.url) : null);
+}
+
 export function ImageInput({ value, onChange }: { value: ImageValue; onChange: (value: ImageValue) => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const labelId = useId();
+  const errorId = useId();
   const [error, setError] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const preview = usePreview(value);
 
-  useEffect(() => {
-    if (!value.file) {
-      setPreview(value.url ? imageSrc(value.url) : null);
-      return;
-    }
-    const objectUrl = URL.createObjectURL(value.file);
-    setPreview(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [value.file, value.url]);
-
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = '';
+  function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
     if (!file) return;
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       setError('Formato no soportado: usa JPG, PNG, WebP o GIF.');
@@ -48,32 +54,50 @@ export function ImageInput({ value, onChange }: { value: ImageValue; onChange: (
   }
 
   return (
-    <div>
-      <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-        <ImagePlus className="h-4 w-4" /> Imagen (opcional)
-      </label>
+    <div className="space-y-1.5">
+      <p id={labelId} className="flex items-center gap-1.5 text-sm font-medium text-ink">
+        <ImagePlus className="h-4 w-4 text-ink-muted" aria-hidden /> Foto de la propiedad (opcional)
+      </p>
 
       {preview ? (
-        <div className="relative mt-2 aspect-video w-full overflow-hidden rounded-lg bg-slate-100">
-          <img src={preview} alt="Vista previa de la imagen" className="h-full w-full object-cover" />
-          <button
-            type="button"
-            onClick={clear}
-            aria-label="Quitar imagen"
-            className="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 text-slate-700 shadow hover:bg-white"
-          >
-            <X className="h-4 w-4" />
-          </button>
+        <div className="relative aspect-video w-full overflow-hidden rounded-control bg-surface-sunken">
+          <Image
+            src={preview}
+            alt="Vista previa de la foto"
+            fill
+            unoptimized
+            sizes="(min-width: 768px) 640px, 100vw"
+            className="object-cover"
+          />
+          <div className="absolute right-2 top-2 flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => fileRef.current?.click()}
+              icon={<RefreshCw className="h-4 w-4" aria-hidden />}
+            >
+              Cambiar
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={clear}
+              aria-label="Quitar foto"
+              icon={<X className="h-4 w-4" aria-hidden />}
+            />
+          </div>
         </div>
       ) : (
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="mt-2 flex w-full flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-slate-300 py-8 text-sm text-slate-500 hover:border-slate-400 hover:bg-slate-50"
+          aria-labelledby={labelId}
+          aria-describedby={error ? errorId : undefined}
+          className="flex w-full flex-col items-center justify-center gap-1 rounded-control border-2 border-dashed border-line-strong bg-surface-muted py-8 text-sm text-ink-soft transition-colors hover:border-brand-400 hover:bg-brand-50"
         >
-          <ImagePlus className="h-6 w-6" />
-          Subir una foto desde tu computador
-          <span className="text-xs text-slate-400">JPG, PNG, WebP o GIF · máx. 5 MB</span>
+          <ImagePlus className="h-6 w-6 text-brand-600" aria-hidden />
+          <span className="font-medium">Subir una foto desde tu computador</span>
+          <span className="text-xs text-ink-muted">JPG, PNG, WebP o GIF · máx. 5 MB</span>
         </button>
       )}
 
@@ -82,21 +106,17 @@ export function ImageInput({ value, onChange }: { value: ImageValue; onChange: (
         type="file"
         accept={ACCEPTED_IMAGE_TYPES.join(',')}
         onChange={handleFile}
-        className="hidden"
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden
         data-testid="image-file"
       />
 
-      {preview && (
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          className="mt-2 text-sm font-medium text-slate-600 hover:text-slate-900"
-        >
-          Cambiar foto
-        </button>
+      {error && (
+        <p id={errorId} role="alert" className="flex items-center gap-1 text-xs font-medium text-danger-600">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden /> {error}
+        </p>
       )}
-
-      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
     </div>
   );
 }

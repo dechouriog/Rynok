@@ -1,13 +1,60 @@
 # Test Evidence — Results and Coverage
 
-| Suite | Tool | Tests | Result | Line coverage |
-| --- | --- | --- | --- | --- |
-| Smart contract | Hardhat 3 + Mocha/Chai | 22 | 22 passing | 100% |
-| Backend unit | Vitest + `@vitest/coverage-v8` | 49 | 49 passing | 96.01% |
-| Backend e2e | Vitest + `supertest` (SQLite in memory + real PostgreSQL) | 15 | 15 passing | — |
-| Frontend | Vitest + Testing Library + `@vitest/coverage-v8` | 72 | 72 passing | 88.82% |
-| Integration (local node) | Script against Hardhat node + backend + PostgreSQL | 17 checks | 17 passing | — |
-| Integration (Sepolia) | Script against the deployed contract + backend | 15 checks | 15 passing | — |
+## Iteration 3.1 (measured 2026-11-17, branch `mejoras-demo-defensa`)
+
+Environment: Windows 11, Node 24.15, PostgreSQL 16 (Docker, port 5433), Chromium 1254 (Playwright 1.65.0).
+
+| Suite                    | Command                            | Tests | Result      | Line coverage                          |
+| ------------------------ | ---------------------------------- | ----- | ----------- | -------------------------------------- |
+| Smart contract           | `cd contracts && npm run coverage` | 22    | 22 passing  | 100% (`Escrow.sol`, unchanged)         |
+| Backend unit             | `npm run test -w backend`          | 66    | 66 passing  | 81.12% (over **all** `src/`, see note) |
+| Backend e2e              | `npm run test:e2e`                 | 23    | 23 passing  | —                                      |
+| Backend unit + e2e       | `npm run test:cov:all -w backend`  | 89    | 89 passing  | **93.11%** (branches 81.22%)           |
+| Frontend                 | `npm run test:cov -w frontend`     | 131   | 131 passing | **93.61%** (branches 87.31%)           |
+| Browser e2e (Playwright) | `npm run test:browser`             | 6     | 6 passing   | —                                      |
+
+**Note on backend coverage**: coverage is now computed over every file in `src/` (`coverage.include`). The previous 96.01% only counted files imported by the unit tests, so controllers and modules were left out of the denominator.
+
+**Browser e2e** (`e2e/`). Each run starts an isolated stack: a clean `rynok_e2e` database, a Hardhat node on :8546, `Escrow.sol` deployed, the API with `ESCROW_RPC_URL` (**on-chain verification on**), and Next.js. MetaMask is simulated at the EIP-1193 boundary, while signatures and transactions are real.
+
+```text
+ok 1 escrow-flow › publicar → habilitar → comprar con otra wallet → confirmar entrega → vendida
+ok 2 escrow-flow › camino de reembolso: el vendedor reembolsa y la propiedad vuelve a estar disponible
+ok 3 escrow-flow › el comprador no ve el botón de compra hasta que el vendedor la habilita
+ok 4 navigation › sin MetaMask ofrece instalarlo y las páginas de cuenta lo explican
+ok 5 navigation › en la red equivocada muestra el aviso y ofrece cambiar
+ok 6 navigation › marketplace: filtros en la URL, 404 en español y menú móvil (360 px, sin scroll horizontal)
+6 passed
+```
+
+**Static checks**: `npm run lint` (oxlint `--deny-warnings`, ESLint `--max-warnings=0`, `prettier --check`) passes. The frontend previously had 30 ESLint errors. `npm run typecheck`, `nest build`, `next build`, and `hardhat compile` pass. The backend and frontend Docker images build, and `/health` responds from the container.
+
+**New tests in this iteration** cover:
+
+- fail-closed verification in production, duplicate deposit hashes, pagination and sorting, CORS and helmet headers (including cross-origin images), rate limiting (429), and the uniform error format;
+- the whole UI escrow flow: the buy button gated by the on-chain listing, a contract revert reason shown to the user, retrying registration without paying twice, 30-day claim, and seller refund;
+- session renewal on 401, wrong network, and account change;
+- image upload validation and the onboarding modal.
+
+Screenshots of every screen at 360, 768, and 1280 px: `docs/screenshots/` (`npm run screenshots`).
+
+**Not verified in this iteration**:
+
+- CI on GitHub: the workflow exists but the branch has not been pushed.
+- The new UI against the Sepolia deployment with real MetaMask.
+
+---
+
+## Entrega 3 (previous measurement)
+
+| Suite                    | Tool                                                      | Tests     | Result     | Line coverage |
+| ------------------------ | --------------------------------------------------------- | --------- | ---------- | ------------- |
+| Smart contract           | Hardhat 3 + Mocha/Chai                                    | 22        | 22 passing | 100%          |
+| Backend unit             | Vitest + `@vitest/coverage-v8`                            | 49        | 49 passing | 96.01%        |
+| Backend e2e              | Vitest + `supertest` (SQLite in memory + real PostgreSQL) | 15        | 15 passing | —             |
+| Frontend                 | Vitest + Testing Library + `@vitest/coverage-v8`          | 72        | 72 passing | 88.82%        |
+| Integration (local node) | Script against Hardhat node + backend + PostgreSQL        | 17 checks | 17 passing | —             |
+| Integration (Sepolia)    | Script against the deployed contract + backend            | 15 checks | 15 passing | —             |
 
 ---
 
@@ -99,7 +146,7 @@ Main cases covered:
   - hidden while the seller has not enabled the purchase on-chain, or when the on-chain price differs from the published one;
   - hidden for the owner and on sold properties;
   - shows the real cause of a failure.
-- **`PropertyOwnerActions`**: the *Habilitar compra* button signs `list` and offers *Actualizar precio on-chain* when the prices differ.
+- **`PropertyOwnerActions`**: the _Habilitar compra_ button signs `list` and offers _Actualizar precio on-chain_ when the prices differ.
 - **`TransactionRow`**:
   - confirm delivery, refund, and claim after the deadline;
   - every contract call passes the property and the seller.

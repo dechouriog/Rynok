@@ -26,7 +26,12 @@ describe('Subida de imágenes (e2e)', () => {
 
     const moduleRef = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({ type: 'better-sqlite3', database: ':memory:', autoLoadEntities: true, synchronize: true }),
+        TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          autoLoadEntities: true,
+          synchronize: true,
+        }),
         AuthModule,
         PropertyModule,
       ],
@@ -58,7 +63,13 @@ describe('Subida de imágenes (e2e)', () => {
     await request(app.getHttpServer())
       .post('/properties')
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: 'Casa con foto', description: 'x', location: 'Medellín', priceEth: '1', imageUrl: url })
+      .send({
+        title: 'Casa con foto',
+        description: 'Casa con jardín, garaje y foto subida a Rynok.',
+        location: 'Medellín',
+        priceEth: '1',
+        imageUrl: url,
+      })
       .expect(201);
 
     const served = await request(app.getHttpServer()).get(url).expect(200);

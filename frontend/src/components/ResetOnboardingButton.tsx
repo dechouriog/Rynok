@@ -1,13 +1,20 @@
 'use client';
+import { ONBOARDING_KEY } from './OnboardingModal';
 
+/** Vuelve a mostrar la guía de inicio. */
 export function ResetOnboardingButton() {
   return (
     <button
+      type="button"
       onClick={() => {
-        localStorage.removeItem('rynok_onboarding_seen');
+        try {
+          window.localStorage.removeItem(ONBOARDING_KEY);
+        } catch {
+          // sin localStorage no hay nada que reiniciar
+        }
         window.location.reload();
       }}
-      className="hover:text-slate-900"
+      className="rounded-control text-ink-muted hover:text-ink"
     >
       Ver guía de inicio
     </button>

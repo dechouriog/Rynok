@@ -1,13 +1,8 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import type { Relation } from 'typeorm';
 import type { User } from '../../user/entities/user.entity.js';
+import { decimalTransformer } from '../../common/decimal.transformer.js';
 
 export enum PropertyStatus {
   AVAILABLE = 'AVAILABLE',
@@ -29,11 +24,12 @@ export class Property {
   @Column()
   location: string;
 
-  @Column('decimal', { precision: 18, scale: 6 })
+  /** Se devuelve normalizado ("1.500000" → "1.5"). */
+  @Column('decimal', { precision: 18, scale: 6, transformer: decimalTransformer })
   priceEth: string;
 
-  @Column({ nullable: true })
-  imageUrl?: string;
+  @Column({ type: 'varchar', nullable: true })
+  imageUrl?: string | null;
 
   @ManyToOne('User', 'properties', { eager: true })
   owner: Relation<User>;
@@ -47,4 +43,7 @@ export class Property {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

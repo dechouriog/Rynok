@@ -17,7 +17,12 @@ describe('Escrow — historial (e2e)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
-        TypeOrmModule.forRoot({ type: 'better-sqlite3', database: ':memory:', autoLoadEntities: true, synchronize: true }),
+        TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          autoLoadEntities: true,
+          synchronize: true,
+        }),
         AuthModule,
         PropertyModule,
         EscrowModule,

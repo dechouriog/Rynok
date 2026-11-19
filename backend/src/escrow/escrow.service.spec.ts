@@ -1,12 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 
 import { EscrowService } from './escrow.service.js';
 import { EscrowChainVerifier } from './escrow-chain.verifier.js';
@@ -20,6 +15,7 @@ const mockRepo = () => ({
   findOneBy: vi.fn(),
   find: vi.fn(),
   update: vi.fn(),
+  existsBy: vi.fn().mockResolvedValue(false),
 });
 
 const SELLER = '0x00000000000000000000000000000000000000d1';
@@ -68,12 +64,8 @@ describe('EscrowService', () => {
     }).compile();
 
     service = module.get(EscrowService);
-    escrowRepo = module.get(
-      getRepositoryToken(EscrowTransaction),
-    );
-    propertyRepo = module.get(
-      getRepositoryToken(Property),
-    );
+    escrowRepo = module.get(getRepositoryToken(EscrowTransaction));
+    propertyRepo = module.get(getRepositoryToken(Property));
     chain = module.get(EscrowChainVerifier);
   });
 
@@ -84,7 +76,13 @@ describe('EscrowService', () => {
       const saved = await service.recordDeposit(depositDto() as any, BUYER.toUpperCase().replace('0X', '0x'));
 
       expect(saved).toMatchObject({ buyerWallet: BUYER, sellerWallet: SELLER, status: 'AWAITING_DELIVERY' });
-      expect(chain.assertEvent).toHaveBeenCalledWith(HASH, expect.any(String), 'Deposited', 'prop-1', expect.objectContaining({ buyer: BUYER, seller: SELLER }));
+      expect(chain.assertEvent).toHaveBeenCalledWith(
+        HASH,
+        expect.any(String),
+        'Deposited',
+        'prop-1',
+        expect.objectContaining({ buyer: BUYER, seller: SELLER }),
+      );
       expect(propertyRepo.update).toHaveBeenCalledWith('prop-1', { status: 'IN_ESCROW' });
     });
 
@@ -101,7 +99,9 @@ describe('EscrowService', () => {
 
     it('rechaza un monto distinto al precio de la propiedad', async () => {
       propertyRepo.findOneBy.mockResolvedValue(property());
-      await expect(service.recordDeposit(depositDto({ amountEth: '0.000001' }) as any, BUYER)).rejects.toThrow(BadRequestException);
+      await expect(service.recordDeposit(depositDto({ amountEth: '0.000001' }) as any, BUYER)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('rechaza que el vendedor compre su propia propiedad', async () => {
@@ -147,7 +147,11 @@ describe('EscrowService', () => {
   describe('refund', () => {
     it('marca REFUNDED y la propiedad vuelve a AVAILABLE', async () => {
       escrowRepo.findOne.mockResolvedValue({
-        sellerWallet: SELLER, buyerWallet: BUYER, status: 'AWAITING_DELIVERY', contractAddress: '0xc', createdAt: new Date(),
+        sellerWallet: SELLER,
+        buyerWallet: BUYER,
+        status: 'AWAITING_DELIVERY',
+        contractAddress: '0xc',
+        createdAt: new Date(),
       });
 
       const result = await service.refund('prop-1', SELLER, HASH);
@@ -158,7 +162,10 @@ describe('EscrowService', () => {
 
     it('rechaza que el comprador registre el reembolso antes del plazo', async () => {
       escrowRepo.findOne.mockResolvedValue({
-        sellerWallet: SELLER, buyerWallet: BUYER, status: 'AWAITING_DELIVERY', createdAt: new Date(),
+        sellerWallet: SELLER,
+        buyerWallet: BUYER,
+        status: 'AWAITING_DELIVERY',
+        createdAt: new Date(),
       });
       await expect(service.refund('prop-1', BUYER, HASH)).rejects.toThrow(ForbiddenException);
     });
@@ -166,7 +173,11 @@ describe('EscrowService', () => {
     it('permite al comprador registrar el reembolso vencido el plazo de 30 días', async () => {
       const createdAt = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
       escrowRepo.findOne.mockResolvedValue({
-        sellerWallet: SELLER, buyerWallet: BUYER, status: 'AWAITING_DELIVERY', contractAddress: '0xc', createdAt,
+        sellerWallet: SELLER,
+        buyerWallet: BUYER,
+        status: 'AWAITING_DELIVERY',
+        contractAddress: '0xc',
+        createdAt,
       });
 
       const result = await service.refund('prop-1', BUYER, HASH);
@@ -178,28 +189,31 @@ describe('EscrowService', () => {
     it('rechaza el reembolso de un tercero', async () => {
       const createdAt = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
       escrowRepo.findOne.mockResolvedValue({
-        sellerWallet: SELLER, buyerWallet: BUYER, status: 'AWAITING_DELIVERY', createdAt,
+        sellerWallet: SELLER,
+        buyerWallet: BUYER,
+        status: 'AWAITING_DELIVERY',
+        createdAt,
       });
       await expect(service.refund('prop-1', '0xotra', HASH)).rejects.toThrow(ForbiddenException);
     });
   });
 
   it('busca el historial normalizando la wallet a minúsculas', async () => {
-    escrowRepo.find.mockResolvedValue([
-      { id: '1' },
-      { id: '2' },
-    ]);
+    escrowRepo.find.mockResolvedValue([{ id: '1' }, { id: '2' }]);
 
     const result = await service.findForUser('0xABC');
 
     expect(escrowRepo.find).toHaveBeenCalledWith({
-      where: [
-        { buyerWallet: '0xabc' },
-        { sellerWallet: '0xabc' },
-      ],
+      where: [{ buyerWallet: '0xabc' }, { sellerWallet: '0xabc' }],
       order: { createdAt: 'DESC' },
     });
 
     expect(result).toHaveLength(2);
+  });
+
+  it('rechaza registrar dos veces el mismo hash de depósito', async () => {
+    escrowRepo.existsBy.mockResolvedValue(true);
+    await expect(service.recordDeposit(depositDto() as never, BUYER)).rejects.toThrow(/ya fue registrado/);
+    expect(chain.assertEvent).not.toHaveBeenCalled();
   });
 });

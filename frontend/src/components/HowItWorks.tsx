@@ -1,29 +1,56 @@
-import { Home, Search, Wallet, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Search, ShieldCheck, Wallet, type LucideIcon } from 'lucide-react';
 
-const STEPS = [
-  { icon: Home, title: 'Publica tu propiedad', text: 'Sube fotos, descripción, ubicación y define tu precio en ETH.' },
-  { icon: Search, title: 'Explora el marketplace', text: 'Los compradores filtran por ciudad y precio.' },
-  { icon: Wallet, title: 'Paga con MetaMask', text: 'La compra se firma directamente desde la wallet del comprador.' },
-  { icon: ShieldCheck, title: 'Escrow protege el pago', text: 'Los fondos se liberan solo cuando la venta se confirma.' },
+const STEPS: Array<{ icon: LucideIcon; title: string; text: string }> = [
+  {
+    icon: Search,
+    title: 'Encuentra tu propiedad',
+    text: 'Filtra por ciudad y precio en ETH. Solo las propiedades con compra habilitada aceptan pagos.',
+  },
+  {
+    icon: Wallet,
+    title: 'Paga con MetaMask',
+    text: 'Depositas el precio exacto en el contrato. El vendedor todavía no recibe el dinero.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'El escrow lo protege',
+    text: 'Los fondos quedan bloqueados. Si no hay entrega, recuperas tu dinero pasados 30 días.',
+  },
+  {
+    icon: CheckCircle2,
+    title: 'Confirmas la entrega',
+    text: 'Cuando recibes la propiedad, liberas el pago al vendedor con un clic.',
+  },
 ];
 
 export function HowItWorks() {
   return (
-    <div className="border-t border-slate-200 bg-slate-50 py-20">
+    <section className="border-t border-line bg-surface-muted py-16 sm:py-20" aria-labelledby="como-funciona">
       <div className="mx-auto max-w-6xl px-4">
-        <h2 className="text-center text-2xl font-bold text-slate-900">Cómo funciona</h2>
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-100 text-brand-600">
-                <Icon className="h-5 w-5" />
+        <h2 id="como-funciona" className="text-center text-2xl font-bold tracking-tight text-ink">
+          Cómo funciona
+        </h2>
+        <p className="mx-auto mt-2 max-w-xl text-center text-ink-muted">
+          Cuatro pasos, sin intermediarios que retengan tu dinero.
+        </p>
+        <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map(({ icon: Icon, title, text }, i) => (
+            <li key={title} className="rounded-card border border-line bg-surface p-6 shadow-card">
+              <div className="flex items-center gap-3">
+                <span
+                  className="flex h-11 w-11 items-center justify-center rounded-control bg-brand-50 text-brand-600"
+                  aria-hidden
+                >
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span className="text-sm font-semibold text-ink-muted">Paso {i + 1}</span>
               </div>
-              <h3 className="mt-4 font-semibold text-slate-900">{title}</h3>
-              <p className="mt-1 text-sm text-slate-500">{text}</p>
-            </div>
+              <h3 className="mt-4 font-semibold text-ink">{title}</h3>
+              <p className="mt-1 text-sm text-ink-muted">{text}</p>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
-    </div>
+    </section>
   );
 }

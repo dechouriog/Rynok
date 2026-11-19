@@ -48,9 +48,9 @@ describe('EscrowChainVerifier', () => {
   });
 
   it('rechaza una transacción inexistente o fallida', async () => {
-    await expect(
-      verifierWith(null).assertEvent(HASH, CONTRACT, 'Deposited', PROPERTY, expected),
-    ).rejects.toThrow('no existe o no fue exitosa');
+    await expect(verifierWith(null).assertEvent(HASH, CONTRACT, 'Deposited', PROPERTY, expected)).rejects.toThrow(
+      'no existe o no fue exitosa',
+    );
     await expect(
       verifierWith({ status: 0, logs: [depositLog()] }).assertEvent(HASH, CONTRACT, 'Deposited', PROPERTY, expected),
     ).rejects.toThrow('no existe o no fue exitosa');
@@ -63,9 +63,9 @@ describe('EscrowChainVerifier', () => {
     ['otro monto', { amount: BigInt(1) }],
   ])('rechaza un depósito de %s', async (_, overrides) => {
     const verifier = verifierWith({ status: 1, logs: [depositLog(overrides)] });
-    await expect(
-      verifier.assertEvent(HASH, CONTRACT, 'Deposited', PROPERTY, expected),
-    ).rejects.toThrow(BadRequestException);
+    await expect(verifier.assertEvent(HASH, CONTRACT, 'Deposited', PROPERTY, expected)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('ignora eventos emitidos por otro contrato', async () => {
@@ -77,7 +77,10 @@ describe('EscrowChainVerifier', () => {
   });
 
   it('rechaza un evento distinto al esperado', async () => {
-    const verifier = verifierWith({ status: 1, logs: [log(CONTRACT, 'Released', [escrowPropertyId(PROPERTY), SELLER])] });
+    const verifier = verifierWith({
+      status: 1,
+      logs: [log(CONTRACT, 'Released', [escrowPropertyId(PROPERTY), SELLER])],
+    });
     await expect(verifier.assertEvent(HASH, CONTRACT, 'Deposited', PROPERTY, expected)).rejects.toThrow(
       'no contiene el evento Deposited',
     );

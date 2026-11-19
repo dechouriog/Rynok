@@ -1,119 +1,163 @@
 'use client';
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Wallet } from 'lucide-react';
-import { createProperty } from '@/lib/api';
+import { MapPin } from 'lucide-react';
+import { ApiError, createProperty, updateProperty, type Property } from '@/lib/api';
 import { useWallet } from '@/context/WalletContext';
-import { ImageInput, resolveImageUrl, type ImageValue } from '@/components/ImageInput';
+import {
+  EMPTY_PROPERTY,
+  toPropertyInput,
+  validateProperty,
+  type PropertyFormErrors,
+  type PropertyFormValues,
+} from '@/lib/validation';
+import { Button, ButtonLink, Input, Textarea, useToast } from '@/components/ui';
+import { ImageInput, resolveImageUrl, type ImageValue } from './ImageInput';
 
-const inputClass =
-  'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500';
+type PropertyFormProps = { property?: Property };
 
-export function PropertyForm() {
+const FIELD_ORDER: Array<keyof PropertyFormValues> = ['title', 'description', 'location', 'priceEth'];
+
+/**
+ * Formulario de publicación y edición. Valida en el cliente con las mismas reglas que el servidor,
+ * sube la foto (si se eligió una) al guardar y renueva la sesión si el JWT expiró.
+ */
+export function PropertyForm({ property }: PropertyFormProps) {
   const router = useRouter();
-  const { token, connect, isConnecting } = useWallet();
-  const [form, setForm] = useState({ title: '', description: '', location: '', priceEth: '' });
-  const [image, setImage] = useState<ImageValue>({ file: null, url: '' });
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const { withSession } = useWallet();
+  const editing = Boolean(property);
+  const [values, setValues] = useState<PropertyFormValues>(
+    property
+      ? {
+          title: property.title,
+          description: property.description,
+          location: property.location,
+          priceEth: property.priceEth,
+        }
+      : EMPTY_PROPERTY,
+  );
+  const [image, setImage] = useState<ImageValue>({ file: null, url: property?.imageUrl ?? '' });
+  const [errors, setErrors] = useState<PropertyFormErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    if (!token) {
-      setError('Conecta tu wallet antes de publicar.');
+  function update(field: keyof PropertyFormValues, value: string) {
+    setValues((current) => ({ ...current, [field]: value }));
+    if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFormError(null);
+    const found = validateProperty(values);
+    setErrors(found);
+    if (Object.keys(found).length) {
+      // Lleva el foco al primer campo con error (por nombre: el DOM aún no tiene aria-invalid en este punto).
+      const first = FIELD_ORDER.find((field) => found[field]);
+      const element = first ? event.currentTarget.elements.namedItem(first) : null;
+      if (element instanceof HTMLElement) element.focus();
       return;
     }
+
     setSubmitting(true);
     try {
-      // La imagen se sube recién al publicar: si el usuario cambia de idea antes,
-      // no quedan archivos huérfanos en el servidor.
-      const imageUrl = await resolveImageUrl(image, token);
-      await createProperty({ ...form, ...(imageUrl ? { imageUrl } : {}) }, token);
-      router.push('/properties');
-    } catch (err: any) {
-      setError(err?.message ?? 'No se pudo publicar la propiedad. Intenta de nuevo.');
+      const saved = await withSession(async (token) => {
+        const input = toPropertyInput(values, await resolveImageUrl(image, token));
+        return property ? updateProperty(property.id, input, token) : createProperty(input, token);
+      });
+      const priceChanged = property && Number(saved.priceEth) !== Number(property.priceEth);
+      toast({
+        tone: 'success',
+        title: editing ? 'Cambios guardados' : 'Propiedad publicada',
+        description: priceChanged
+          ? 'Cambiaste el precio: pulsa "Actualizar precio on-chain" para que puedan comprarla.'
+          : editing
+            ? undefined
+            : 'Siguiente paso: habilita la compra para que puedan pagarte en ETH.',
+      });
+      router.push(`/properties/${saved.id}`);
+      router.refresh();
+    } catch (error) {
+      setFormError(
+        error instanceof ApiError
+          ? error.details.length > 1
+            ? error.details.join(' · ')
+            : error.message
+          : 'No se pudo guardar la propiedad. Inténtalo de nuevo.',
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
-  if (!token) {
-    return (
-      <div className="mx-auto max-w-md rounded-xl border border-slate-200 p-8 text-center">
-        <Wallet className="mx-auto mb-3 h-8 w-8 text-slate-400" />
-        <p className="mb-4 text-slate-600">Necesitas conectar tu wallet para publicar una propiedad.</p>
-        <button
-          onClick={connect}
-          disabled={isConnecting}
-          className="rounded-lg bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800"
-        >
-          {isConnecting ? 'Conectando...' : 'Conectar wallet'}
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-5">
-      <div>
-        <label className="text-sm font-medium text-slate-700">Título</label>
-        <input
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <Input
+        label="Título"
+        required
+        placeholder="Apartamento moderno en El Poblado"
+        name="title"
+        value={values.title}
+        maxLength={120}
+        onChange={(e) => update('title', e.target.value)}
+        error={errors.title}
+        hint="Entre 5 y 120 caracteres."
+      />
+      <Textarea
+        label="Descripción"
+        required
+        placeholder="Habitaciones, baños, amenidades y estado de la propiedad."
+        name="description"
+        value={values.description}
+        maxLength={2000}
+        onChange={(e) => update('description', e.target.value)}
+        error={errors.description}
+        hint={`${values.description.trim().length}/2000 caracteres (mínimo 20).`}
+      />
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Input
+          label="Ubicación"
           required
-          placeholder="Apartamento moderno en El Poblado"
-          className={inputClass}
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          placeholder="Medellín, Antioquia"
+          name="location"
+          value={values.location}
+          maxLength={120}
+          onChange={(e) => update('location', e.target.value)}
+          error={errors.location}
+          icon={<MapPin className="h-4 w-4 text-ink-muted" aria-hidden />}
+        />
+        <Input
+          label="Precio en ETH"
+          required
+          inputMode="decimal"
+          placeholder="2.5"
+          name="priceEth"
+          value={values.priceEth}
+          onChange={(e) => update('priceEth', e.target.value)}
+          error={errors.priceEth}
+          hint="Hasta 6 decimales. Es el monto exacto que el comprador depositará."
         />
       </div>
-
-      <div>
-        <label className="text-sm font-medium text-slate-700">Descripción</label>
-        <textarea
-          required
-          rows={4}
-          placeholder="Describe la propiedad, sus amenidades y estado actual."
-          className={inputClass}
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-medium text-slate-700">Ubicación</label>
-        <input
-          required
-          placeholder="Medellín, Colombia"
-          className={inputClass}
-          value={form.location}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-medium text-slate-700">Precio en ETH</label>
-        <input
-          required
-          type="number"
-          step="0.0001"
-          placeholder="3.5"
-          className={inputClass}
-          value={form.priceEth}
-          onChange={(e) => setForm({ ...form, priceEth: e.target.value })}
-        />
-      </div>
-
       <ImageInput value={image} onChange={setImage} />
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {formError && (
+        <p
+          role="alert"
+          className="rounded-control border border-danger-600/30 bg-danger-50 px-4 py-3 text-sm text-danger-700"
+        >
+          {formError}
+        </p>
+      )}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-lg bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800"
-      >
-        {submitting ? 'Publicando...' : 'Confirmar y publicar'}
-      </button>
+      <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+        <ButtonLink href={property ? `/properties/${property.id}` : '/properties'} variant="outline">
+          Cancelar
+        </ButtonLink>
+        <Button type="submit" loading={submitting} loadingText={editing ? 'Guardando…' : 'Publicando…'}>
+          {editing ? 'Guardar cambios' : 'Publicar propiedad'}
+        </Button>
+      </div>
     </form>
   );
 }

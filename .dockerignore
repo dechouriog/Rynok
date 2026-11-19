@@ -1,0 +1,16 @@
+**/node_modules
+**/.next
+**/.next-e2e
+**/dist
+**/coverage
+**/.env
+**/.env.*
+!**/.env.example
+contracts
+docs
+e2e
+scripts
+.git
+playwright-report
+test-results
+**/*.tsbuildinfo

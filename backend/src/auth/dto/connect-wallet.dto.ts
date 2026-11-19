@@ -20,7 +20,8 @@ export class ConnectWalletDto extends RequestNonceDto {
   signature: string;
 
   @ApiProperty({
-    example: 'Iniciar sesión en Rynok\n\nWallet: 0x71c7...\nNonce: 9f86d081884c7d65...\nEmitido: 2026-10-11T12:00:00.000Z',
+    example:
+      'Iniciar sesión en Rynok\n\nWallet: 0x71c7...\nNonce: 9f86d081884c7d65...\nEmitido: 2026-10-11T12:00:00.000Z',
     description: 'Mensaje exacto devuelto por POST /auth/nonce. Es de un solo uso y expira a los 5 minutos.',
   })
   @IsString()

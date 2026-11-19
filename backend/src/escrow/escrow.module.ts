@@ -9,12 +9,9 @@ import { EscrowChainVerifier } from './escrow-chain.verifier.js';
 import { AuthModule } from '../auth/auth.module.js';
 
 @Module({
-  imports: [
-    ConfigModule,
-    TypeOrmModule.forFeature([EscrowTransaction, Property]),
-    AuthModule,
-  ],
+  imports: [ConfigModule, TypeOrmModule.forFeature([EscrowTransaction, Property]), AuthModule],
   controllers: [EscrowController],
   providers: [EscrowService, EscrowChainVerifier],
+  exports: [EscrowChainVerifier],
 })
 export class EscrowModule {}

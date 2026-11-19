@@ -8,14 +8,14 @@ Desplegado en Sepolia:
 
 ## Flujo
 
-| Paso | Quién | Dónde | Qué pasa |
-| --- | --- | --- | --- |
-| 1. Publicar | Vendedor | Backend | Igual que antes: solo se guarda en la base de datos, no se firma nada. |
-| 2. Habilitar compra | Vendedor | Botón *Habilitar compra* en el detalle de su propiedad | Firma `list(propertyId, price)`: fija en el contrato el precio exacto en wei. |
-| 3. Comprar | Comprador | Botón *Comprar con MetaMask* (solo aparece si el listado on-chain existe y su precio coincide con el publicado) | `deposit(propertyId, seller)` con `msg.value == price`. El backend verifica el evento `Deposited` y marca la propiedad `IN_ESCROW`. |
-| 4a. Confirmar entrega | Comprador | */escrow* → *Confirmar entrega* | `confirmDelivery`: los fondos van al vendedor y la propiedad pasa a `SOLD`. |
-| 4b. Reembolsar | Vendedor | */escrow* → *Reembolsar al comprador* | `refund`: los fondos vuelven al comprador y la propiedad vuelve a `AVAILABLE`. |
-| 4c. Reclamar por plazo | Comprador | */escrow* → *Reclamar reembolso* (pasados 30 días) | `claimRefund`: si el vendedor no entregó en `DELIVERY_PERIOD` (30 días), el comprador recupera sus fondos. |
+| Paso                   | Quién     | Dónde                                                                                                           | Qué pasa                                                                                                                            |
+| ---------------------- | --------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Publicar            | Vendedor  | Backend                                                                                                         | Igual que antes: solo se guarda en la base de datos, no se firma nada.                                                              |
+| 2. Habilitar compra    | Vendedor  | Botón _Habilitar compra_ en el detalle de su propiedad                                                          | Firma `list(propertyId, price)`: fija en el contrato el precio exacto en wei.                                                       |
+| 3. Comprar             | Comprador | Botón _Comprar con MetaMask_ (solo aparece si el listado on-chain existe y su precio coincide con el publicado) | `deposit(propertyId, seller)` con `msg.value == price`. El backend verifica el evento `Deposited` y marca la propiedad `IN_ESCROW`. |
+| 4a. Confirmar entrega  | Comprador | _/escrow_ → _Confirmar entrega_                                                                                 | `confirmDelivery`: los fondos van al vendedor y la propiedad pasa a `SOLD`.                                                         |
+| 4b. Reembolsar         | Vendedor  | _/escrow_ → _Reembolsar al comprador_                                                                           | `refund`: los fondos vuelven al comprador y la propiedad vuelve a `AVAILABLE`.                                                      |
+| 4c. Reclamar por plazo | Comprador | _/escrow_ → _Reclamar reembolso_ (pasados 30 días)                                                              | `claimRefund`: si el vendedor no entregó en `DELIVERY_PERIOD` (30 días), el comprador recupera sus fondos.                          |
 
 `propertyId` en el contrato es `keccak256(UUID)`, el mismo UUID de la base de datos.
 
@@ -28,8 +28,8 @@ clave compuesta, cada dirección solo puede listar, y por lo tanto bloquear, sus
 
 - Un atacante que lista la propiedad a 1 wei y la "compra" con otra cuenta solo crea un depósito
   asociado a su propia dirección. El listado del vendedor real queda intacto y el comprador
-  legítimo compra sin problema (test *"un atacante con listado y depósito de 1 wei propios no
-  bloquea la venta real"*).
+  legítimo compra sin problema (test _"un atacante con listado y depósito de 1 wei propios no
+  bloquea la venta real"_).
 - El frontend siempre deposita para el vendedor que el backend tiene registrado como dueño, y el
   backend rechaza registrar depósitos cuyo evento on-chain no coincida con ese vendedor y ese precio.
 
@@ -47,8 +47,8 @@ comprador puede además recuperarlos sin depender del vendedor.
 ## Limitaciones conocidas
 
 - **Precio desincronizado.** Si el vendedor edita el precio en Rynok, el listado on-chain queda con
-  el precio anterior. El botón *Comprar* se oculta hasta que el vendedor pulse *Actualizar precio
-  on-chain*. El precio no se puede cambiar con un depósito pendiente: ni el backend ni el contrato
+  el precio anterior. El botón _Comprar_ se oculta hasta que el vendedor pulse _Actualizar precio
+  on-chain_. El precio no se puede cambiar con un depósito pendiente: ni el backend ni el contrato
   lo permiten.
 - **Plazo calculado por dos relojes.** El contrato usa el timestamp del bloque del depósito. El
   backend usa la fecha en que registró el depósito para aceptar que el comprador registre el

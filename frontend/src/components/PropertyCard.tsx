@@ -1,43 +1,44 @@
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
-import { formatEth, imageSrc, type Property } from '@/lib/api';
+import type { Property } from '@/lib/api';
+import { formatEth } from '@/lib/format';
+import { PropertyImage } from './property/PropertyImage';
+import { PropertyStatusBadge } from './property/StatusBadge';
 
-const STATUS_BADGE: Record<string, { label: string; className: string }> = {
-  IN_ESCROW: { label: 'En escrow', className: 'bg-amber-100 text-amber-700' },
-  SOLD: { label: 'Vendida', className: 'bg-slate-900 text-white' },
-};
-
-export function PropertyCard({ property }: { property: Property }) {
-  const badge = STATUS_BADGE[property.status ?? ''];
-
+export function PropertyCard({ property, priority }: { property: Property; priority?: boolean }) {
   return (
-    <Link
-      href={`/properties/${property.id}`}
-      className="group block overflow-hidden rounded-xl border border-slate-200 transition-shadow hover:shadow-lg"
+    <article
       data-testid="property-card"
+      className="group relative flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-card transition-shadow hover:shadow-raised"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
-        <img
-          src={imageSrc(property.imageUrl)}
-          alt={property.title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-sunken">
+        <PropertyImage
+          src={property.imageUrl}
+          alt={`Foto de ${property.title}`}
+          sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+          priority={priority}
+          className="transition-transform duration-300 group-hover:scale-105"
         />
-        {badge && (
-          <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold ${badge.className}`}>
-            {badge.label}
-          </span>
-        )}
-      </div>
-      <div className="space-y-2 p-4">
-        <h3 className="line-clamp-1 font-semibold text-slate-900">{property.title}</h3>
-        <div className="flex items-center gap-1 text-sm text-slate-500">
-          <MapPin className="h-3.5 w-3.5" />
-          <span>{property.location}</span>
-        </div>
-        <div className="pt-1">
-          <span className="text-lg font-bold text-slate-900">{formatEth(property.priceEth)} ETH</span>
+        <div className="absolute left-3 top-3">
+          <PropertyStatusBadge status={property.status} />
         </div>
       </div>
-    </Link>
+      <div className="flex flex-1 flex-col gap-1.5 p-4">
+        <h3 className="line-clamp-1 font-semibold text-ink">
+          {/* El enlace cubre toda la tarjeta, pero el nombre accesible es solo el título */}
+          <Link
+            href={`/properties/${property.id}`}
+            className="after:absolute after:inset-0 focus-visible:outline-none group-focus-within:underline"
+          >
+            {property.title}
+          </Link>
+        </h3>
+        <p className="flex items-center gap-1 text-sm text-ink-muted">
+          <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          <span className="line-clamp-1">{property.location}</span>
+        </p>
+        <p className="mt-auto pt-2 text-lg font-bold text-ink">{formatEth(property.priceEth)}</p>
+      </div>
+    </article>
   );
 }

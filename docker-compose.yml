@@ -1,18 +1,72 @@
-version: "3.9"
+# Uso habitual (solo la base de datos):   docker compose up -d postgres
+# Stack completo en contenedores:          docker compose --profile app up --build
+# Postgres queda en el puerto 5433 del host para no chocar con instalaciones locales en 5432.
 services:
   postgres:
     image: postgres:16-alpine
     container_name: rynok-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: rynok
-      POSTGRES_PASSWORD: rynok
-      POSTGRES_DB: rynok
+      POSTGRES_USER: ${DB_USER:-rynok}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-rynok}
+      POSTGRES_DB: ${DB_NAME:-rynok}
     ports:
-      # 5433 en el host para no chocar con un PostgreSQL local (p. ej. el de WSL)
-      - "5433:5432"
+      - '5433:5432'
     volumes:
       - rynok_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-rynok}
+      DB_PASSWORD: ${DB_PASSWORD:-rynok}
+      DB_NAME: ${DB_NAME:-rynok}
+      DB_SYNCHRONIZE: 'true'
+      PORT: 3001
+      CORS_ORIGINS: http://localhost:3000
+      # Obligatorio: la imagen corre con NODE_ENV=production y no arranca sin secreto
+      JWT_SECRET: ${JWT_SECRET:-}
+      NODE_ENV: production
+      # Verificación on-chain: obligatoria con NODE_ENV=production
+      ESCROW_RPC_URL: ${ESCROW_RPC_URL:-http://host.docker.internal:8545}
+      ESCROW_CONTRACT_ADDRESS: ${ESCROW_CONTRACT_ADDRESS:-0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9}
+    ports:
+      - '3001:3001'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/health']
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  frontend:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+        NEXT_PUBLIC_CHAIN_ID: ${CHAIN_ID:-11155111}
+        NEXT_PUBLIC_ESCROW_ADDRESS: ${ESCROW_CONTRACT_ADDRESS:-0x049BBA8708b71E33f649Bae0E2F127F805ca9Ca9}
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      API_URL_INTERNAL: http://backend:3001
+    ports:
+      - '3000:3000'
 
 volumes:
   rynok_pgdata:
